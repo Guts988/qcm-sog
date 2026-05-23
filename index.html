@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>QCM Armée</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg: #07070f;
+  --surface: #0e0e1c;
+  --surface2: #13132a;
+  --border: #1e1e3a;
+  --border2: #2a2a4a;
+  --text: #e8e8ff;
+  --muted: #5a5a8a;
+  --dim: #3a3a5a;
+  --accent: #7b7bff;
+  --accent-dim: #3a3a8a;
+  --gold: #ffd166;
+  --gold-dim: #ffd16622;
+  --up: #4dfa8a;
+  --up-bg: #081a10;
+  --up-dim: #4dfa8a22;
+  --down: #ff6b6b;
+  --down-bg: #1a0808;
+  --down-dim: #ff6b6b22;
+  --mono: ui-monospace, monospace;
+  --display: system-ui, -apple-system, sans-serif;
+  --radius: 12px;
+}
+
+- { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+background: var(–bg);
+color: var(–text);
+font-family: var(–mono);
+min-height: 100vh;
+overflow-x: hidden;
+}
+
+/* Grain overlay */
+body::before {
+content: ‘’;
+position: fixed;
+inset: 0;
+background-image: url(“data:image/svg+xml,%3Csvg viewBox=‘0 0 256 256’ xmlns=‘http://www.w3.org/2000/svg’%3E%3Cfilter id=‘n’%3E%3CfeTurbulence type=‘fractalNoise’ baseFrequency=‘0.9’ numOctaves=‘4’ stitchTiles=‘stitch’/%3E%3C/filter%3E%3Crect width=‘100%25’ height=‘100%25’ filter=‘url(%23n)’ opacity=‘0.03’/%3E%3C/svg%3E”);
+pointer-events: none;
+z-index: 0;
+opacity: 0.5;
+}
+
+.app {
+position: relative;
+z-index: 1;
+max-width: 680px;
+margin: 0 auto;
+padding-bottom: 80px;
+}
+
+/* ── HEADER ── */
+.header {
+padding: 28px 20px 18px;
+border-bottom: 1px solid var(–border);
+background: linear-gradient(180deg, #0d0d1f 0%, transparent 100%);
+position: sticky;
+top: 0;
+z-index: 10;
+backdrop-filter: blur(14px);
+}
+
+.eyebrow {
+font-size: 9px;
+letter-spacing: 5px;
+color: var(–muted);
+text-transform: uppercase;
+margin-bottom: 5px;
+}
+
+.header h1 {
+font-family: var(–display);
+font-size: 22px;
+font-weight: 800;
+letter-spacing: -0.5px;
+display: flex;
+align-items: center;
+gap: 10px;
+}
+
+.header-badge {
+font-size: 9px;
+letter-spacing: 2px;
+background: var(–accent-dim);
+color: var(–accent);
+border: 1px solid var(–accent);
+border-radius: 4px;
+padding: 2px 8px;
+font-weight: 400;
+}
+
+.header-stats {
+display: flex;
+gap: 8px;
+flex-wrap: wrap;
+margin-top: 12px;
+}
+
+.stat-pill {
+background: var(–surface);
+border: 1px solid var(–border);
+border-radius: 20px;
+padding: 3px 12px;
+font-size: 11px;
+color: var(–muted);
+display: flex;
+align-items: center;
+gap: 5px;
+}
+.stat-pill .val { color: var(–text); font-weight: 500; }
+.stat-pill.good { background: var(–up-bg); border-color: var(–up-dim); color: var(–up); }
+.stat-pill.bad { background: var(–down-bg); border-color: var(–down-dim); color: var(–down); }
+
+/* ── NAV ── */
+.nav {
+display: flex;
+padding: 0 20px;
+border-bottom: 1px solid var(–border);
+overflow-x: auto;
+scrollbar-width: none;
+gap: 0;
+}
+.nav::-webkit-scrollbar { display: none; }
+
+.tab {
+background: none;
+border: none;
+border-bottom: 2px solid transparent;
+color: var(–muted);
+padding: 11px 14px;
+cursor: pointer;
+font-family: var(–mono);
+font-size: 11px;
+letter-spacing: 0.5px;
+transition: all 0.2s;
+white-space: nowrap;
+margin-bottom: -1px;
+}
+.tab:hover { color: var(–dim); }
+.tab.active { border-bottom-color: var(–accent); color: var(–text); }
+
+/* ── CONTENT ── */
+.content { padding: 20px; }
+
+/* ── HOME ── */
+.home-grid {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 12px;
+margin-bottom: 24px;
+}
+
+.theme-card {
+background: var(–surface);
+border: 1px solid var(–border);
+border-radius: var(–radius);
+padding: 18px 16px;
+cursor: pointer;
+transition: all 0.2s;
+position: relative;
+overflow: hidden;
+text-align: left;
+}
+
+.theme-card::before {
+content: ‘’;
+position: absolute;
+top: 0; left: 0; right: 0;
+height: 2px;
+background: var(–card-color, var(–accent));
+opacity: 0.6;
+}
+
+.theme-card:hover {
+border-color: var(–card-color, var(–accent));
+background: var(–surface2);
+transform: translateY(-2px);
+}
+
+.theme-icon {
+font-size: 26px;
+margin-bottom: 10px;
+display: block;
+}
+
+.theme-name {
+font-family: var(–display);
+font-size: 13px;
+font-weight: 700;
+color: var(–text);
+margin-bottom: 4px;
+}
+
+.theme-count {
+font-size: 10px;
+color: var(–muted);
+letter-spacing: 1px;
+}
+
+.theme-score {
+margin-top: 10px;
+font-size: 11px;
+}
+
+.score-bar {
+height: 3px;
+background: var(–border);
+border-radius: 2px;
+margin-top: 5px;
+overflow: hidden;
+}
+
+.score-fill {
+height: 100%;
+border-radius: 2px;
+background: var(–card-color, var(–accent));
+transition: width 0.5s ease;
+}
+
+.global-stats {
+background: var(–surface);
+border: 1px solid var(–border2);
+border-left: 3px solid var(–accent);
+border-radius: var(–radius);
+padding: 16px 18px;
+margin-bottom: 20px;
+display: flex;
+justify-content: space-around;
+gap: 10px;
+flex-wrap: wrap;
+}
+
+.gstat { text-align: center; }
+.gstat-val {
+font-family: var(–display);
+font-size: 28px;
+font-weight: 800;
+color: var(–text);
+line-height: 1;
+}
+.gstat-val.accent { color: var(–accent); }
+.gstat-val.gold { color: var(–gold); }
+.gstat-val.green { color: var(–up); }
+.gstat-label {
+font-size: 9px;
+letter-spacing: 2px;
+color: var(–muted);
+text-transform: uppercase;
+margin-top: 4px;
+}
+
+/* ── QCM ── */
+.qcm-header {
+display: flex;
+align-items: center;
+gap: 12px;
+margin-bottom: 20px;
+}
+
+.back-btn {
+background: var(–surface);
+border: 1px solid var(–border);
+color: var(–muted);
+padding: 8px 14px;
+border-radius: 6px;
+font-family: var(–mono);
+font-size: 11px;
+cursor: pointer;
+transition: all 0.2s;
+letter-spacing: 1px;
+}
+.back-btn:hover { color: var(–text); border-color: var(–border2); }
+
+.qcm-title {
+font-family: var(–display);
+font-size: 16px;
+font-weight: 800;
+flex: 1;
+}
+
+.progress-bar {
+height: 3px;
+background: var(–border);
+border-radius: 2px;
+margin-bottom: 24px;
+overflow: hidden;
+}
+.progress-fill {
+height: 100%;
+background: var(–accent);
+border-radius: 2px;
+transition: width 0.4s ease;
+}
+
+.question-num {
+font-size: 9px;
+letter-spacing: 3px;
+color: var(–muted);
+text-transform: uppercase;
+margin-bottom: 10px;
+}
+
+.question-text {
+font-family: var(–display);
+font-size: 17px;
+font-weight: 700;
+color: var(–text);
+line-height: 1.4;
+margin-bottom: 22px;
+}
+
+.options { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
+
+.option-btn {
+background: var(–surface);
+border: 1px solid var(–border);
+border-radius: 10px;
+padding: 14px 16px;
+color: var(–text);
+font-family: var(–mono);
+font-size: 13px;
+cursor: pointer;
+transition: all 0.2s;
+text-align: left;
+display: flex;
+align-items: center;
+gap: 12px;
+line-height: 1.4;
+}
+
+.option-btn:hover:not(:disabled) {
+border-color: var(–accent);
+background: var(–surface2);
+}
+
+.option-letter {
+width: 26px;
+height: 26px;
+border-radius: 50%;
+background: var(–border);
+color: var(–muted);
+font-size: 11px;
+font-weight: 700;
+display: flex;
+align-items: center;
+justify-content: center;
+flex-shrink: 0;
+transition: all 0.2s;
+}
+
+.option-btn.correct {
+border-color: var(–up);
+background: var(–up-bg);
+color: var(–up);
+}
+.option-btn.correct .option-letter {
+background: var(–up);
+color: #000;
+}
+
+.option-btn.wrong {
+border-color: var(–down);
+background: var(–down-bg);
+color: var(–down);
+}
+.option-btn.wrong .option-letter {
+background: var(–down);
+color: #000;
+}
+
+.option-btn.reveal-correct {
+border-color: var(–up);
+background: var(–up-bg);
+opacity: 0.6;
+}
+
+.option-btn:disabled { cursor: default; }
+
+.explanation {
+background: var(–surface2);
+border: 1px solid var(–border2);
+border-left: 3px solid var(–accent);
+border-radius: 8px;
+padding: 14px 16px;
+font-size: 12px;
+color: var(–muted);
+line-height: 1.7;
+margin-bottom: 20px;
+display: none;
+}
+.explanation.visible { display: block; }
+.explanation strong { color: var(–text); }
+
+.next-btn {
+background: var(–accent-dim);
+border: 1px solid var(–accent);
+color: var(–accent);
+border-radius: 8px;
+padding: 13px 20px;
+font-family: var(–mono);
+font-size: 12px;
+letter-spacing: 1px;
+cursor: pointer;
+transition: all 0.2s;
+width: 80%;
+display: block;
+margin: 0 auto;
+text-align: center;
+display: none;
+}
+.next-btn.visible { display: block; }
+.next-btn:hover { background: var(–accent); color: #000; }
+
+/* ── RESULT ── */
+.result-wrap {
+text-align: center;
+padding: 20px 0;
+}
+
+.result-score {
+font-family: var(–display);
+font-size: 72px;
+font-weight: 800;
+line-height: 1;
+margin-bottom: 8px;
+}
+.result-score.excellent { color: var(–up); }
+.result-score.good-score { color: var(–gold); }
+.result-score.bad-score { color: var(–down); }
+
+.result-label {
+font-size: 10px;
+letter-spacing: 4px;
+color: var(–muted);
+text-transform: uppercase;
+margin-bottom: 30px;
+}
+
+.result-details {
+background: var(–surface);
+border: 1px solid var(–border);
+border-radius: var(–radius);
+padding: 16px;
+margin-bottom: 20px;
+text-align: left;
+}
+
+.detail-row {
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding: 8px 0;
+border-bottom: 1px solid var(–border);
+font-size: 13px;
+}
+.detail-row:last-child { border-bottom: none; }
+.detail-label { color: var(–muted); }
+.detail-val { font-weight: 500; }
+.detail-val.green { color: var(–up); }
+.detail-val.red { color: var(–down); }
+
+.result-btns {
+display: flex;
+flex-direction: column;
+gap: 10px;
+align-items: center;
+}
+
+.btn-retry {
+background: var(–accent-dim);
+border: 1px solid var(–accent);
+color: var(–accent);
+border-radius: 8px;
+padding: 13px 20px;
+font-family: var(–mono);
+font-size: 12px;
+letter-spacing: 1px;
+cursor: pointer;
+transition: all 0.2s;
+width: 80%;
+text-align: center;
+}
+.btn-retry:hover { background: var(–accent); color: #000; }
+
+.btn-home {
+background: transparent;
+border: 1px solid var(–border2);
+color: var(–muted);
+border-radius: 8px;
+padding: 13px 20px;
+font-family: var(–mono);
+font-size: 12px;
+letter-spacing: 1px;
+cursor: pointer;
+transition: all 0.2s;
+width: 80%;
+text-align: center;
+}
+.btn-home:hover { color: var(–text); border-color: var(–text); }
+
+/* ── SCORES PAGE ── */
+.scores-list { display: flex; flex-direction: column; gap: 10px; }
+
+.score-item {
+background: var(–surface);
+border: 1px solid var(–border);
+border-radius: var(–radius);
+padding: 14px 16px;
+display: flex;
+align-items: center;
+gap: 14px;
+}
+
+.score-icon { font-size: 22px; }
+
+.score-info { flex: 1; }
+.score-theme {
+font-family: var(–display);
+font-size: 14px;
+font-weight: 700;
+margin-bottom: 3px;
+}
+.score-sub { font-size: 11px; color: var(–muted); }
+
+.score-pct {
+font-family: var(–display);
+font-size: 22px;
+font-weight: 800;
+}
+.score-pct.excellent { color: var(–up); }
+.score-pct.mid { color: var(–gold); }
+.score-pct.low { color: var(–down); }
+.score-pct.none { color: var(–dim); }
+
+.empty-scores {
+text-align: center;
+padding: 48px 20px;
+color: var(–muted);
+font-size: 13px;
+line-height: 1.7;
+}
+.empty-icon { font-size: 36px; margin-bottom: 12px; opacity: 0.3; }
+
+/* reset btn */
+.reset-btn {
+background: transparent;
+border: 1px solid var(–down);
+color: var(–down);
+border-radius: 6px;
+padding: 8px 16px;
+font-family: var(–mono);
+font-size: 11px;
+cursor: pointer;
+letter-spacing: 1px;
+transition: all 0.2s;
+margin-top: 16px;
+display: block;
+width: 80%;
+margin: 16px auto 0;
+text-align: center;
+}
+.reset-btn:hover { background: var(–down); color: #000; }
+
+@keyframes fadeUp {
+from { opacity: 0; transform: translateY(10px); }
+to { opacity: 1; transform: translateY(0); }
+}
+.content > * { animation: fadeUp 0.25s ease both; }
+
+@media (max-width: 400px) {
+.home-grid { grid-template-columns: 1fr; }
+.result-score { font-size: 56px; }
+}
+
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: var(–bg); }
+::-webkit-scrollbar-thumb { background: var(–border2); border-radius: 2px; }
+</style>
+
+</head>
+<body>
+<div class="app">
+
+  <div class="header">
+    <div class="eyebrow">Préparation Militaire</div>
+    <h1>QCM Armée <span class="header-badge">BETA</span></h1>
+    <div class="header-stats" id="headerStats"></div>
+  </div>
+
+  <div class="nav">
+    <button class="tab active" data-tab="home">🏠 Accueil</button>
+    <button class="tab" data-tab="scores">🏆 Scores</button>
+  </div>
+
+  <div class="content" id="content"></div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════
+// DATA — À COMPLÉTER AVEC TES QUESTIONS
+// ══════════════════════════════════════════════
+const THEMES = [
+  {
+    id: "grades",
+    name: "Grades",
+    icon: "🎖️",
+    color: "#7b7bff",
+    questions: [
+      // FORMAT :
+      // { q: "Question ?", options: ["A", "B", "C", "D"], answer: 0, expl: "Explication." }
+      // answer = index de la bonne réponse (0=A, 1=B, 2=C, 3=D)
+      {
+        q: "Exemple — Quel est le grade au-dessus de Caporal ?",
+        options: ["Soldat", "Caporal-Chef", "Sergent", "Adjudant"],
+        answer: 1,
+        expl: "Le Caporal-Chef se situe juste au-dessus du Caporal dans la hiérarchie des sous-officiers."
+      }
+    ]
+  },
+  {
+    id: "alpha",
+    name: "Code Alphanumérique",
+    icon: "🔤",
+    color: "#ffd166",
+    questions: [
+      {
+        q: "Exemple — Quelle lettre correspond à 'Alpha' dans l'alphabet OTAN ?",
+        options: ["A", "B", "C", "D"],
+        answer: 0,
+        expl: "Alpha = A dans l'alphabet phonétique OTAN (Alpha, Bravo, Charlie, Delta...)"
+      }
+    ]
+  },
+  {
+    id: "organisation",
+    name: "Organisation",
+    icon: "⚙️",
+    color: "#4dfa8a",
+    questions: [
+      {
+        q: "Exemple — Combien de soldats composent une section type ?",
+        options: ["8 à 12", "20 à 40", "100 à 150", "300 à 500"],
+        answer: 1,
+        expl: "Une section est généralement composée de 20 à 40 soldats, répartis en plusieurs groupes."
+      }
+    ]
+  },
+  {
+    id: "histoire",
+    name: "Histoire",
+    icon: "📜",
+    color: "#ff6b6b",
+    questions: [
+      {
+        q: "Exemple — En quelle année a eu lieu la bataille de Verdun ?",
+        options: ["1914", "1916", "1918", "1940"],
+        answer: 1,
+        expl: "La bataille de Verdun s'est déroulée en 1916, l'une des plus meurtrières de la Première Guerre mondiale."
+      }
+    ]
+  }
+];
+
+// ══════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════
+let scores = {};
+let currentTheme = null;
+let currentQ = 0;
+let sessionCorrect = 0;
+let answered = false;
+let currentTab = "home";
+
+function loadScores() {
+  try {
+    const s = localStorage.getItem("qcm_armee_scores");
+    if (s) scores = JSON.parse(s);
+  } catch(e) {}
+}
+
+function saveScores() {
+  localStorage.setItem("qcm_armee_scores", JSON.stringify(scores));
+}
+
+// ══════════════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════════════
+function getPct(themeId) {
+  const s = scores[themeId];
+  if (!s || s.attempts === 0) return null;
+  return Math.round((s.correct / s.total) * 100);
+}
+
+function getScoreClass(pct) {
+  if (pct === null) return "none";
+  if (pct >= 80) return "excellent";
+  if (pct >= 50) return "mid";
+  return "low";
+}
+
+function getTotalStats() {
+  let total = 0, correct = 0, done = 0;
+  THEMES.forEach(t => {
+    const s = scores[t.id];
+    if (s && s.attempts > 0) {
+      total += s.total;
+      correct += s.correct;
+      done++;
+    }
+  });
+  return { total, correct, done };
+}
+
+// ══════════════════════════════════════════════
+// RENDER
+// ══════════════════════════════════════════════
+function render() {
+  updateHeader();
+  const c = document.getElementById("content");
+  c.innerHTML = "";
+  if (currentTab === "home") renderHome(c);
+  else if (currentTab === "scores") renderScores(c);
+  else if (currentTab === "qcm") renderQCM(c);
+}
+
+function updateHeader() {
+  const el = document.getElementById("headerStats");
+  const { total, correct, done } = getTotalStats();
+  if (total === 0) { el.innerHTML = ""; return; }
+  const pct = Math.round((correct / total) * 100);
+  const cls = pct >= 80 ? "good" : pct >= 50 ? "" : "bad";
+  el.innerHTML = `
+    <div class="stat-pill ${cls}">${pct}% de réussite</div>
+    <div class="stat-pill">${correct}/${total} bonnes réponses</div>
+    <div class="stat-pill">${done}/4 thèmes</div>`;
+}
+
+// ── HOME ──
+function renderHome(c) {
+  const { total, correct, done } = getTotalStats();
+
+  if (total > 0) {
+    const pct = Math.round((correct / total) * 100);
+    const cls = pct >= 80 ? "green" : pct >= 50 ? "gold" : "accent";
+    c.innerHTML += `
+      <div class="global-stats">
+        <div class="gstat"><div class="gstat-val ${cls}">${pct}%</div><div class="gstat-label">Réussite</div></div>
+        <div class="gstat"><div class="gstat-val">${correct}</div><div class="gstat-label">Bonnes rép.</div></div>
+        <div class="gstat"><div class="gstat-val">${total - correct}</div><div class="gstat-label">Erreurs</div></div>
+        <div class="gstat"><div class="gstat-val">${done}/4</div><div class="gstat-label">Thèmes</div></div>
+      </div>`;
+  }
+
+  let grid = '<div class="home-grid">';
+  THEMES.forEach(t => {
+    const pct = getPct(t.id);
+    const s = scores[t.id];
+    const scoreHtml = pct !== null
+      ? `<div class="theme-score" style="color:${t.color}">${pct}% · ${s.correct}/${s.total}</div>
+         <div class="score-bar"><div class="score-fill" style="width:${pct}%;background:${t.color}"></div></div>`
+      : `<div class="theme-score" style="color:var(--dim)">Non commencé</div>
+         <div class="score-bar"><div class="score-fill" style="width:0%"></div></div>`;
+
+    grid += `
+      <div class="theme-card" style="--card-color:${t.color}" onclick="startTheme('${t.id}')">
+        <span class="theme-icon">${t.icon}</span>
+        <div class="theme-name">${t.name}</div>
+        <div class="theme-count">${t.questions.length} QUESTION${t.questions.length > 1 ? 'S' : ''}</div>
+        ${scoreHtml}
+      </div>`;
+  });
+  grid += '</div>';
+  c.innerHTML += grid;
+}
+
+// ── SCORES ──
+function renderScores(c) {
+  const { total, correct } = getTotalStats();
+
+  if (total === 0) {
+    c.innerHTML = `<div class="empty-scores">
+      <div class="empty-icon">🏆</div>
+      <p>Aucun score enregistré.<br>Lance un QCM pour commencer !</p>
+    </div>`;
+    return;
+  }
+
+  let html = '<div class="scores-list">';
+  THEMES.forEach(t => {
+    const pct = getPct(t.id);
+    const s = scores[t.id];
+    const cls = getScoreClass(pct);
+    const pctStr = pct !== null ? `${pct}%` : "—";
+    const sub = s && s.attempts > 0
+      ? `${s.correct}/${s.total} · ${s.attempts} tentative${s.attempts > 1 ? 's' : ''}`
+      : "Non commencé";
+
+    html += `
+      <div class="score-item">
+        <div class="score-icon">${t.icon}</div>
+        <div class="score-info">
+          <div class="score-theme">${t.name}</div>
+          <div class="score-sub">${sub}</div>
+          <div class="score-bar" style="margin-top:6px">
+            <div class="score-fill" style="width:${pct ?? 0}%;background:${t.color}"></div>
+          </div>
+        </div>
+        <div class="score-pct ${cls}" style="${pct !== null ? `color:${t.color}` : ''}">${pctStr}</div>
+      </div>`;
+  });
+  html += '</div>';
+
+  html += `<button class="reset-btn" onclick="resetScores()">EFFACER LES SCORES</button>`;
+  c.innerHTML = html;
+}
+
+// ── QCM ──
+function startTheme(id) {
+  currentTheme = THEMES.find(t => t.id === id);
+  currentQ = 0;
+  sessionCorrect = 0;
+  answered = false;
+  // Shuffle questions
+  currentTheme._shuffled = [...currentTheme.questions].sort(() => Math.random() - 0.5);
+  currentTab = "qcm";
+  // Activate QCM tab visually
+  document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+  render();
+}
+
+function renderQCM(c) {
+  const theme = currentTheme;
+  const questions = theme._shuffled;
+
+  if (currentQ >= questions.length) {
+    renderResult(c);
+    return;
+  }
+
+  const q = questions[currentQ];
+  const progress = ((currentQ) / questions.length) * 100;
+  const letters = ["A", "B", "C", "D"];
+
+  let html = `
+    <div class="qcm-header">
+      <button class="back-btn" onclick="goHome()">← RETOUR</button>
+      <div class="qcm-title">${theme.icon} ${theme.name}</div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div>
+    <div class="question-num">QUESTION ${currentQ + 1} / ${questions.length}</div>
+    <div class="question-text">${q.q}</div>
+    <div class="options" id="options">`;
+
+  q.options.forEach((opt, i) => {
+    html += `
+      <button class="option-btn" onclick="answer(${i})" id="opt${i}">
+        <span class="option-letter">${letters[i]}</span>
+        ${opt}
+      </button>`;
+  });
+
+  html += `</div>
+    <div class="explanation" id="expl"><strong>💡 Explication :</strong> ${q.expl}</div>
+    <button class="next-btn" id="nextBtn" onclick="nextQ()">
+      ${currentQ + 1 < questions.length ? 'QUESTION SUIVANTE →' : 'VOIR LES RÉSULTATS →'}
+    </button>`;
+
+  c.innerHTML = html;
+}
+
+function answer(idx) {
+  if (answered) return;
+  answered = true;
+  const q = currentTheme._shuffled[currentQ];
+  const letters = ["A", "B", "C", "D"];
+
+  q.options.forEach((_, i) => {
+    const btn = document.getElementById(`opt${i}`);
+    btn.disabled = true;
+    if (i === q.answer) {
+      btn.classList.add(idx === q.answer ? "correct" : "reveal-correct");
+    }
+    if (i === idx && idx !== q.answer) {
+      btn.classList.add("wrong");
+    }
+  });
+
+  if (idx === q.answer) sessionCorrect++;
+
+  document.getElementById("expl").classList.add("visible");
+  document.getElementById("nextBtn").classList.add("visible");
+}
+
+function nextQ() {
+  currentQ++;
+  answered = false;
+  render();
+}
+
+function renderResult(c) {
+  const total = currentTheme._shuffled.length;
+  const pct = Math.round((sessionCorrect / total) * 100);
+  const cls = pct >= 80 ? "excellent" : pct >= 50 ? "good-score" : "bad-score";
+  const msg = pct >= 80 ? "EXCELLENT !" : pct >= 50 ? "BON TRAVAIL" : "À REVOIR";
+
+  // Save score
+  if (!scores[currentTheme.id]) scores[currentTheme.id] = { correct: 0, total: 0, attempts: 0 };
+  scores[currentTheme.id].correct += sessionCorrect;
+  scores[currentTheme.id].total += total;
+  scores[currentTheme.id].attempts++;
+  saveScores();
+
+  c.innerHTML = `
+    <div class="result-wrap">
+      <div class="result-score ${cls}">${pct}%</div>
+      <div class="result-label">${msg}</div>
+      <div class="result-details">
+        <div class="detail-row">
+          <span class="detail-label">Bonnes réponses</span>
+          <span class="detail-val green">${sessionCorrect} / ${total}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Erreurs</span>
+          <span class="detail-val red">${total - sessionCorrect}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Thème</span>
+          <span class="detail-val">${currentTheme.icon} ${currentTheme.name}</span>
+        </div>
+      </div>
+      <div class="result-btns">
+        <button class="btn-retry" onclick="startTheme('${currentTheme.id}')">🔄 RECOMMENCER</button>
+        <button class="btn-home" onclick="goHome()">← ACCUEIL</button>
+      </div>
+    </div>`;
+}
+
+// ══════════════════════════════════════════════
+// ACTIONS
+// ══════════════════════════════════════════════
+function goHome() {
+  currentTheme = null;
+  currentTab = "home";
+  document.querySelectorAll(".tab").forEach(t => {
+    t.classList.toggle("active", t.dataset.tab === "home");
+  });
+  render();
+}
+
+function resetScores() {
+  if (!confirm("Effacer tous les scores ?")) return;
+  scores = {};
+  saveScores();
+  render();
+}
+
+// ══════════════════════════════════════════════
+// TABS
+// ══════════════════════════════════════════════
+document.querySelectorAll(".tab").forEach(btn => {
+  btn.addEventListener("click", () => {
+    if (btn.dataset.tab === "qcm") return;
+    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+    btn.classList.add("active");
+    currentTab = btn.dataset.tab;
+    currentTheme = null;
+    render();
+  });
+});
+
+// ══════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════
+loadScores();
+render();
+</script>
+
+</body>
+</html>
