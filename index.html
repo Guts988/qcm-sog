@@ -24,119 +24,116 @@
   --down: #ff6b6b;
   --down-bg: #1a0808;
   --down-dim: #ff6b6b22;
+  --mono: ui-monospace, monospace;
+  --display: system-ui, -apple-system, sans-serif;
   --radius: 12px;
 }
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { background-color: #07070f; color: #e8e8ff; font-family: ui-monospace, monospace; min-height: 100vh; }
-button { font-family: ui-monospace, monospace; cursor: pointer; -webkit-appearance: none; appearance: none; border: none; outline: none; }
-img { display: block; max-width: 100%; border-radius: 10px; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: var(--mono); min-height: 100vh; overflow-x: hidden; }
+body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E"); pointer-events: none; z-index: 0; opacity: 0.5; }
+.app { position: relative; z-index: 1; max-width: 680px; margin: 0 auto; padding-bottom: 80px; }
 
-.app { max-width: 680px; margin: 0 auto; padding-bottom: 80px; }
-
-/* HEADER */
-.header { padding: 28px 20px 18px; border-bottom: 1px solid #1e1e3a; background: linear-gradient(180deg, #0d0d1f 0%, transparent 100%); position: sticky; top: 0; z-index: 10; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
-.eyebrow { font-size: 9px; letter-spacing: 5px; color: #5a5a8a; text-transform: uppercase; margin-bottom: 5px; }
-.header h1 { font-family: system-ui, -apple-system, sans-serif; font-size: 22px; font-weight: 800; letter-spacing: -0.5px; color: #e8e8ff; display: flex; align-items: center; gap: 10px; }
-.header-badge { font-size: 9px; letter-spacing: 2px; background-color: #3a3a8a; color: #7b7bff; border: 1px solid #7b7bff; border-radius: 4px; padding: 2px 8px; font-weight: 400; }
+.header { padding: 28px 20px 18px; border-bottom: 1px solid var(–border); background: linear-gradient(180deg, #0d0d1f 0%, transparent 100%); position: sticky; top: 0; z-index: 10; backdrop-filter: blur(14px); }
+.eyebrow { font-size: 9px; letter-spacing: 5px; color: var(–muted); text-transform: uppercase; margin-bottom: 5px; }
+.header h1 { font-family: var(–display); font-size: 22px; font-weight: 800; letter-spacing: -0.5px; display: flex; align-items: center; gap: 10px; }
+.header-badge { font-size: 9px; letter-spacing: 2px; background: var(–accent-dim); color: var(–accent); border: 1px solid var(–accent); border-radius: 4px; padding: 2px 8px; font-weight: 400; }
 .header-stats { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
-.stat-pill { background-color: #0e0e1c; border: 1px solid #1e1e3a; border-radius: 20px; padding: 3px 12px; font-size: 11px; color: #5a5a8a; display: flex; align-items: center; gap: 5px; }
-.stat-pill .val { color: #e8e8ff; font-weight: 500; }
-.stat-pill.good { background-color: #081a10; border-color: #4dfa8a44; color: #4dfa8a; }
-.stat-pill.bad { background-color: #1a0808; border-color: #ff6b6b44; color: #ff6b6b; }
+.stat-pill { background: var(–surface); border: 1px solid var(–border); border-radius: 20px; padding: 3px 12px; font-size: 11px; color: var(–muted); display: flex; align-items: center; gap: 5px; }
+.stat-pill .val { color: var(–text); font-weight: 500; }
+.stat-pill.good { background: var(–up-bg); border-color: var(–up-dim); color: var(–up); }
+.stat-pill.bad { background: var(–down-bg); border-color: var(–down-dim); color: var(–down); }
 
-/* NAV */
-.nav { display: flex; padding: 0 20px; border-bottom: 1px solid #1e1e3a; overflow-x: auto; scrollbar-width: none; }
+.nav { display: flex; padding: 0 20px; border-bottom: 1px solid var(–border); overflow-x: auto; scrollbar-width: none; }
 .nav::-webkit-scrollbar { display: none; }
-.tab { background-color: transparent; border-bottom: 2px solid transparent; color: #5a5a8a; padding: 11px 14px; font-size: 11px; letter-spacing: 0.5px; white-space: nowrap; margin-bottom: -1px; transition: all 0.2s; }
-.tab.active { border-bottom-color: #7b7bff; color: #e8e8ff; }
+.tab { background: none; border: none; border-bottom: 2px solid transparent; color: var(–muted); padding: 11px 14px; cursor: pointer; font-family: var(–mono); font-size: 11px; letter-spacing: 0.5px; transition: all 0.2s; white-space: nowrap; margin-bottom: -1px; }
+.tab.active { border-bottom-color: var(–accent); color: var(–text); }
 
 .content { padding: 20px; }
 
-/* HOME GRID */
 .home-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }
-.theme-card { background-color: #0e0e1c; border: 1px solid #1e1e3a; border-radius: 12px; padding: 18px 16px; text-align: left; transition: all 0.2s; position: relative; overflow: hidden; width: 100%; }
-.theme-card::before { content: ‘’; position: absolute; top: 0; left: 0; right: 0; height: 2px; background-color: var(–c, #7b7bff); }
-.theme-card:active { transform: scale(0.98); }
+.theme-card { background: var(–surface); border: 1px solid var(–border); border-radius: var(–radius); padding: 18px 16px; cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden; text-align: left; }
+.theme-card::before { content: ‘’; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(–card-color, var(–accent)); }
+.theme-card:hover { border-color: var(–card-color, var(–accent)); background: var(–surface2); transform: translateY(-2px); }
 .theme-icon { font-size: 26px; margin-bottom: 10px; display: block; }
-.theme-name { font-family: system-ui, -apple-system, sans-serif; font-size: 13px; font-weight: 700; color: #e8e8ff; margin-bottom: 4px; }
-.theme-count { font-size: 10px; color: #5a5a8a; letter-spacing: 1px; }
+.theme-name { font-family: var(–display); font-size: 13px; font-weight: 700; color: var(–text); margin-bottom: 4px; }
+.theme-count { font-size: 10px; color: var(–muted); letter-spacing: 1px; }
 .theme-score { margin-top: 10px; font-size: 11px; }
-.score-bar { height: 3px; background-color: #1e1e3a; border-radius: 2px; margin-top: 5px; overflow: hidden; }
+.score-bar { height: 3px; background: var(–border); border-radius: 2px; margin-top: 5px; overflow: hidden; }
 .score-fill { height: 100%; border-radius: 2px; transition: width 0.5s ease; }
 
-/* GLOBAL STATS */
-.global-stats { background-color: #0e0e1c; border: 1px solid #2a2a4a; border-left: 3px solid #7b7bff; border-radius: 12px; padding: 16px 18px; margin-bottom: 20px; display: flex; justify-content: space-around; gap: 10px; flex-wrap: wrap; }
+.global-stats { background: var(–surface); border: 1px solid var(–border2); border-left: 3px solid var(–accent); border-radius: var(–radius); padding: 16px 18px; margin-bottom: 20px; display: flex; justify-content: space-around; gap: 10px; flex-wrap: wrap; }
 .gstat { text-align: center; }
-.gstat-val { font-family: system-ui, -apple-system, sans-serif; font-size: 28px; font-weight: 800; color: #e8e8ff; line-height: 1; }
-.gstat-val.green { color: #4dfa8a; }
-.gstat-val.gold { color: #ffd166; }
-.gstat-label { font-size: 9px; letter-spacing: 2px; color: #5a5a8a; text-transform: uppercase; margin-top: 4px; }
+.gstat-val { font-family: var(–display); font-size: 28px; font-weight: 800; color: var(–text); line-height: 1; }
+.gstat-val.green { color: var(–up); }
+.gstat-val.gold { color: var(–gold); }
+.gstat-label { font-size: 9px; letter-spacing: 2px; color: var(–muted); text-transform: uppercase; margin-top: 4px; }
 
-/* QCM */
 .qcm-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
-.back-btn { background-color: #0e0e1c; border: 1px solid #1e1e3a; color: #5a5a8a; padding: 8px 14px; border-radius: 6px; font-size: 11px; letter-spacing: 1px; }
-.qcm-title { font-family: system-ui, -apple-system, sans-serif; font-size: 16px; font-weight: 800; color: #e8e8ff; flex: 1; }
+.back-btn { background: var(–surface); border: 1px solid var(–border); color: var(–muted); padding: 8px 14px; border-radius: 6px; font-family: var(–mono); font-size: 11px; cursor: pointer; transition: all 0.2s; letter-spacing: 1px; }
+.qcm-title { font-family: var(–display); font-size: 16px; font-weight: 800; flex: 1; }
 
-.progress-bar { height: 3px; background-color: #1e1e3a; border-radius: 2px; margin-bottom: 24px; overflow: hidden; }
-.progress-fill { height: 100%; background-color: #7b7bff; border-radius: 2px; transition: width 0.4s ease; }
+.progress-bar { height: 3px; background: var(–border); border-radius: 2px; margin-bottom: 24px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(–accent); border-radius: 2px; transition: width 0.4s ease; }
 
-.question-num { font-size: 9px; letter-spacing: 3px; color: #5a5a8a; text-transform: uppercase; margin-bottom: 10px; }
-.question-text { font-family: system-ui, -apple-system, sans-serif; font-size: 17px; font-weight: 700; color: #e8e8ff; line-height: 1.4; margin-bottom: 16px; }
-.question-img { width: 100%; max-width: 340px; margin: 0 auto 20px; border-radius: 10px; border: 1px solid #1e1e3a; }
+.question-num { font-size: 9px; letter-spacing: 3px; color: var(–muted); text-transform: uppercase; margin-bottom: 10px; }
+.question-text { font-family: var(–display); font-size: 17px; font-weight: 700; color: var(–text); line-height: 1.4; margin-bottom: 16px; }
+
+.question-img { width: 100%; max-width: 340px; display: block; margin: 0 auto 20px; border-radius: 10px; border: 1px solid var(–border); }
 
 .options { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
-.option-btn { background-color: #0e0e1c; border: 1px solid #1e1e3a; border-radius: 10px; padding: 14px 16px; color: #e8e8ff; font-size: 13px; text-align: left; display: flex; align-items: center; gap: 12px; line-height: 1.4; width: 100%; transition: all 0.2s; }
-.option-btn:active { background-color: #13132a; }
-.option-letter { width: 26px; height: 26px; min-width: 26px; border-radius: 50%; background-color: #1e1e3a; color: #5a5a8a; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
-
-.option-btn.correct { background-color: #081a10 !important; border-color: #4dfa8a !important; color: #4dfa8a !important; }
-.option-btn.correct .option-letter { background-color: #4dfa8a !important; color: #000 !important; }
-.option-btn.wrong { background-color: #1a0808 !important; border-color: #ff6b6b !important; color: #ff6b6b !important; }
-.option-btn.wrong .option-letter { background-color: #ff6b6b !important; color: #000 !important; }
-.option-btn.reveal-correct { background-color: #081a10 !important; border-color: #4dfa8a !important; opacity: 0.6; }
+.option-btn { background: var(–surface); border: 1px solid var(–border); border-radius: 10px; padding: 14px 16px; color: var(–text); font-family: var(–mono); font-size: 13px; cursor: pointer; transition: all 0.2s; text-align: left; display: flex; align-items: center; gap: 12px; line-height: 1.4; }
+.option-btn:hover:not(:disabled) { border-color: var(–accent); background: var(–surface2); }
+.option-letter { width: 26px; height: 26px; border-radius: 50%; background: var(–border); color: var(–muted); font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s; }
+.option-btn.correct { border-color: var(–up); background: var(–up-bg); color: var(–up); }
+.option-btn.correct .option-letter { background: var(–up); color: #000; }
+.option-btn.wrong { border-color: var(–down); background: var(–down-bg); color: var(–down); }
+.option-btn.wrong .option-letter { background: var(–down); color: #000; }
+.option-btn.reveal-correct { border-color: var(–up); background: var(–up-bg); opacity: 0.6; }
 .option-btn:disabled { cursor: default; }
 
-.explanation { background-color: #13132a; border: 1px solid #2a2a4a; border-left: 3px solid #7b7bff; border-radius: 8px; padding: 14px 16px; font-size: 12px; color: #5a5a8a; line-height: 1.7; margin-bottom: 20px; display: none; }
+.explanation { background: var(–surface2); border: 1px solid var(–border2); border-left: 3px solid var(–accent); border-radius: 8px; padding: 14px 16px; font-size: 12px; color: var(–muted); line-height: 1.7; margin-bottom: 20px; display: none; }
 .explanation.visible { display: block; }
-.explanation strong { color: #e8e8ff; }
+.explanation strong { color: var(–text); }
 
-.next-btn { background-color: #3a3a8a; border: 1px solid #7b7bff; color: #7b7bff; border-radius: 8px; padding: 13px 20px; font-size: 12px; letter-spacing: 1px; width: 80%; display: none; margin: 0 auto; text-align: center; }
+.next-btn { background: var(–accent-dim); border: 1px solid var(–accent); color: var(–accent); border-radius: 8px; padding: 13px 20px; font-family: var(–mono); font-size: 12px; letter-spacing: 1px; cursor: pointer; transition: all 0.2s; width: 80%; display: none; margin: 0 auto; text-align: center; }
 .next-btn.visible { display: block; }
+.next-btn:hover { background: var(–accent); color: #000; }
 
-/* RESULT */
 .result-wrap { text-align: center; padding: 20px 0; }
-.result-score { font-family: system-ui, -apple-system, sans-serif; font-size: 72px; font-weight: 800; line-height: 1; margin-bottom: 8px; }
-.result-score.excellent { color: #4dfa8a; }
-.result-score.good-score { color: #ffd166; }
-.result-score.bad-score { color: #ff6b6b; }
-.result-label { font-size: 10px; letter-spacing: 4px; color: #5a5a8a; text-transform: uppercase; margin-bottom: 30px; }
-.result-details { background-color: #0e0e1c; border: 1px solid #1e1e3a; border-radius: 12px; padding: 16px; margin-bottom: 20px; text-align: left; }
-.detail-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #1e1e3a; font-size: 13px; }
+.result-score { font-family: var(–display); font-size: 72px; font-weight: 800; line-height: 1; margin-bottom: 8px; }
+.result-score.excellent { color: var(–up); }
+.result-score.good-score { color: var(–gold); }
+.result-score.bad-score { color: var(–down); }
+.result-label { font-size: 10px; letter-spacing: 4px; color: var(–muted); text-transform: uppercase; margin-bottom: 30px; }
+.result-details { background: var(–surface); border: 1px solid var(–border); border-radius: var(–radius); padding: 16px; margin-bottom: 20px; text-align: left; }
+.detail-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(–border); font-size: 13px; }
 .detail-row:last-child { border-bottom: none; }
-.detail-label { color: #5a5a8a; }
-.detail-val { color: #e8e8ff; }
-.detail-val.green { color: #4dfa8a; }
-.detail-val.red { color: #ff6b6b; }
+.detail-label { color: var(–muted); }
+.detail-val.green { color: var(–up); }
+.detail-val.red { color: var(–down); }
 .result-btns { display: flex; flex-direction: column; gap: 10px; align-items: center; }
-.btn-retry { background-color: #3a3a8a; border: 1px solid #7b7bff; color: #7b7bff; border-radius: 8px; padding: 13px 20px; font-size: 12px; letter-spacing: 1px; width: 80%; text-align: center; }
-.btn-home { background-color: transparent; border: 1px solid #2a2a4a; color: #5a5a8a; border-radius: 8px; padding: 13px 20px; font-size: 12px; letter-spacing: 1px; width: 80%; text-align: center; }
+.btn-retry { background: var(–accent-dim); border: 1px solid var(–accent); color: var(–accent); border-radius: 8px; padding: 13px 20px; font-family: var(–mono); font-size: 12px; letter-spacing: 1px; cursor: pointer; width: 80%; text-align: center; transition: all 0.2s; }
+.btn-retry:hover { background: var(–accent); color: #000; }
+.btn-home { background: transparent; border: 1px solid var(–border2); color: var(–muted); border-radius: 8px; padding: 13px 20px; font-family: var(–mono); font-size: 12px; letter-spacing: 1px; cursor: pointer; width: 80%; text-align: center; transition: all 0.2s; }
 
-/* SCORES */
 .scores-list { display: flex; flex-direction: column; gap: 10px; }
-.score-item { background-color: #0e0e1c; border: 1px solid #1e1e3a; border-radius: 12px; padding: 14px 16px; display: flex; align-items: center; gap: 14px; }
+.score-item { background: var(–surface); border: 1px solid var(–border); border-radius: var(–radius); padding: 14px 16px; display: flex; align-items: center; gap: 14px; }
 .score-icon { font-size: 22px; }
 .score-info { flex: 1; }
-.score-theme { font-family: system-ui, -apple-system, sans-serif; font-size: 14px; font-weight: 700; color: #e8e8ff; margin-bottom: 3px; }
-.score-sub { font-size: 11px; color: #5a5a8a; }
-.score-pct { font-family: system-ui, -apple-system, sans-serif; font-size: 22px; font-weight: 800; }
-.score-pct.none { color: #3a3a5a; }
-.empty-scores { text-align: center; padding: 48px 20px; color: #5a5a8a; font-size: 13px; line-height: 1.7; }
+.score-theme { font-family: var(–display); font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+.score-sub { font-size: 11px; color: var(–muted); }
+.score-pct { font-family: var(–display); font-size: 22px; font-weight: 800; }
+.score-pct.none { color: var(–dim); }
+.empty-scores { text-align: center; padding: 48px 20px; color: var(–muted); font-size: 13px; line-height: 1.7; }
 .empty-icon { font-size: 36px; margin-bottom: 12px; opacity: 0.3; }
-.reset-btn { background-color: transparent; border: 1px solid #ff6b6b; color: #ff6b6b; border-radius: 6px; padding: 8px 16px; font-size: 11px; letter-spacing: 1px; margin: 16px auto 0; display: block; width: 80%; text-align: center; }
+.reset-btn { background: transparent; border: 1px solid var(–down); color: var(–down); border-radius: 6px; padding: 8px 16px; font-family: var(–mono); font-size: 11px; cursor: pointer; letter-spacing: 1px; transition: all 0.2s; margin: 16px auto 0; display: block; width: 80%; text-align: center; }
 
 @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 .content > * { animation: fadeUp 0.25s ease both; }
 @media (max-width: 400px) { .home-grid { grid-template-columns: 1fr; } .result-score { font-size: 56px; } }
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: var(–bg); }
+::-webkit-scrollbar-thumb { background: var(–border2); border-radius: 2px; }
 </style>
 
 </head>
@@ -153,11 +150,16 @@ img { display: block; max-width: 100%; border-radius: 10px; }
   </div>
   <div class="content" id="content"></div>
 </div>
+
 <script>
 const BASE = "https://guts988.github.io/qcm-sog/";
+
 const THEMES = [
   {
-    id: "grades", name: "Grades", icon: "🎖️", color: "#7b7bff",
+    id: "grades",
+    name: "Grades",
+    icon: "🎖️",
+    color: "#7b7bff",
     questions: [
       { q: "Quel est ce grade ?", img: BASE+"IMG_2109.jpeg", options: ["Soldat", "Soldat première classe", "Caporal", "Caporal-chef"], answer: 1, expl: "Le Soldat première classe porte 1 chevron rouge (armée de terre) ou bleu (marine) sur l'épaulette." },
       { q: "Quel est ce grade ?", img: BASE+"IMG_2125.jpeg", options: ["Soldat première classe", "Caporal", "Caporal-chef", "Sergent"], answer: 1, expl: "Le Caporal porte 2 chevrons sur l'épaulette et 2 barrettes sur la tenue de campagne." },
@@ -168,17 +170,20 @@ const THEMES = [
       { q: "Quel est ce grade ?", img: BASE+"IMG_2130.jpeg", options: ["Sergent-chef", "Adjudant", "Major", "Adjudant-chef"], answer: 1, expl: "L'Adjudant porte une large bande avec un liseré rouge sur l'épaulette." },
       { q: "Quel est ce grade ?", img: BASE+"IMG_2131.jpeg", options: ["Adjudant", "Major", "Adjudant-chef", "Aspirant"], answer: 2, expl: "L'Adjudant-chef se distingue de l'Adjudant par un galon doré plus fin ajouté." },
       { q: "Quel est ce grade ?", img: BASE+"IMG_2132.jpeg", options: ["Adjudant-chef", "Major", "Aspirant", "Sous-lieutenant"], answer: 1, expl: "Le Major est le plus haut grade de sous-officier, il porte 2 larges galons sur l'épaulette." },
-      { q: "Quel est ce grade ?", img: BASE+"IMG_2133.jpeg", options: ["Major", "Sous-lieutenant", "Aspirant", "Lieutenant"], answer: 2, expl: "L'Aspirant est un grade de transition entre sous-officier et officier." },
+      { q: "Quel est ce grade ?", img: BASE+"IMG_2133.jpeg", options: ["Major", "Sous-lieutenant", "Aspirant", "Lieutenant"], answer: 2, expl: "L'Aspirant est un grade de transition entre sous-officier et officier, il porte un galon doré avec un filet noir." },
       { q: "Quel est ce grade ?", img: BASE+"IMG_2134.jpeg", options: ["Aspirant", "Sous-lieutenant", "Lieutenant", "Capitaine"], answer: 1, expl: "Le Sous-lieutenant porte 1 galon doré sur l'épaulette, premier grade d'officier." },
       { q: "Quel est ce grade ?", img: BASE+"IMG_2135.jpeg", options: ["Sous-lieutenant", "Lieutenant", "Capitaine", "Commandant"], answer: 1, expl: "Le Lieutenant porte 2 galons dorés sur l'épaulette." },
       { q: "Quel est ce grade ?", img: BASE+"IMG_2136.jpeg", options: ["Lieutenant", "Commandant", "Capitaine", "Lieutenant-colonel"], answer: 2, expl: "Le Capitaine porte 3 galons dorés sur l'épaulette." },
       { q: "Quel est ce grade ?", img: BASE+"IMG_2137.jpeg", options: ["Capitaine", "Commandant", "Lieutenant-colonel", "Colonel"], answer: 1, expl: "Le Commandant porte 4 galons dorés sur l'épaulette, premier grade d'officier supérieur." },
       { q: "Quel est ce grade ?", img: BASE+"IMG_2138.jpeg", options: ["Commandant", "Colonel", "Lieutenant-colonel", "Général"], answer: 2, expl: "Le Lieutenant-colonel porte 4 galons dont un argenté au milieu sur l'épaulette." },
-      { q: "Quel est ce grade ?", img: BASE+"IMG_2139.jpeg", options: ["Lieutenant-colonel", "Général", "Commandant", "Colonel"], answer: 3, expl: "Le Colonel porte 5 galons dorés sur l'épaulette." },
+      { q: "Quel est ce grade ?", img: BASE+"IMG_2139.jpeg", options: ["Lieutenant-colonel", "Général", "Commandant", "Colonel"], answer: 3, expl: "Le Colonel porte 5 galons dorés sur l'épaulette, plus haut grade d'officier supérieur avant général." },
     ]
   },
   {
-    id: "alpha", name: "Code Alphanumérique", icon: "🔤", color: "#ffd166",
+    id: "alpha",
+    name: "Code Alphanumérique",
+    icon: "🔤",
+    color: "#ffd166",
     questions: [
       { q: "À quel mot correspond la lettre A dans l'alphabet OTAN ?", options: ["Amber", "Alpha", "Arrow", "Angel"], answer: 1, expl: "A = Alpha dans l'alphabet phonétique OTAN." },
       { q: "À quel mot correspond la lettre B dans l'alphabet OTAN ?", options: ["Beta", "Baker", "Bravo", "Bruno"], answer: 2, expl: "B = Bravo dans l'alphabet phonétique OTAN." },
@@ -186,9 +191,9 @@ const THEMES = [
       { q: "À quel mot correspond la lettre D dans l'alphabet OTAN ?", options: ["Delta", "Diego", "David", "Dupont"], answer: 0, expl: "D = Delta dans l'alphabet phonétique OTAN." },
       { q: "À quel mot correspond la lettre E dans l'alphabet OTAN ?", options: ["Easy", "Eagle", "Echo", "Ernest"], answer: 2, expl: "E = Echo dans l'alphabet phonétique OTAN." },
       { q: "À quel mot correspond la lettre F dans l'alphabet OTAN ?", options: ["Fox", "Frank", "Foxtrot", "France"], answer: 2, expl: "F = Foxtrot dans l'alphabet phonétique OTAN." },
-      { q: "À quel mot correspond la lettre G dans l'alphabet OTAN ?", options: ["Golf", "George", "Gamma", "Gustav"], answer: 0, expl: "G = Golf dans l'alphabet phonétique OTAN." },
+      { q: "À quel mot correspond la lettre G dans l'alphabet OTAN ?", options: ["Gamma", "George", "Golf", "Gustav"], answer: 2, expl: "G = Golf dans l'alphabet phonétique OTAN." },
       { q: "À quel mot correspond la lettre H dans l'alphabet OTAN ?", options: ["Henry", "Hotel", "Hugo", "Hector"], answer: 1, expl: "H = Hotel dans l'alphabet phonétique OTAN." },
-      { q: "À quel mot correspond la lettre I dans l'alphabet OTAN ?", options: ["India", "Ivan", "Igloo", "Iris"], answer: 0, expl: "I = India dans l'alphabet phonétique OTAN." },
+      { q: "À quel mot correspond la lettre I dans l'alphabet OTAN ?", options: ["Ivan", "Igloo", "India", "Iris"], answer: 2, expl: "I = India dans l'alphabet phonétique OTAN." },
       { q: "À quel mot correspond la lettre J dans l'alphabet OTAN ?", options: ["Juliet", "James", "Jupiter", "Joker"], answer: 0, expl: "J = Juliet dans l'alphabet phonétique OTAN." },
       { q: "À quel mot correspond la lettre K dans l'alphabet OTAN ?", options: ["King", "Kilo", "Karma", "Klaus"], answer: 1, expl: "K = Kilo dans l'alphabet phonétique OTAN." },
       { q: "À quel mot correspond la lettre L dans l'alphabet OTAN ?", options: ["Lima", "London", "Leo", "Lama"], answer: 0, expl: "L = Lima dans l'alphabet phonétique OTAN." },
@@ -197,36 +202,42 @@ const THEMES = [
       { q: "À quel mot correspond la lettre O dans l'alphabet OTAN ?", options: ["Oscar", "Omega", "Otto", "Opera"], answer: 0, expl: "O = Oscar dans l'alphabet phonétique OTAN." },
       { q: "À quel mot correspond la lettre P dans l'alphabet OTAN ?", options: ["Pedro", "Paris", "Papa", "Paulo"], answer: 2, expl: "P = Papa dans l'alphabet phonétique OTAN." },
       { q: "À quel mot correspond la lettre Q dans l'alphabet OTAN ?", options: ["Queen", "Quebec", "Quest", "Quinn"], answer: 1, expl: "Q = Quebec dans l'alphabet phonétique OTAN." },
-      { q: "À quel mot correspond la lettre R dans l'alphabet OTAN ?", options: ["Romeo", "Roger", "Radar", "Robin"], answer: 0, expl: "R = Romeo dans l'alphabet phonétique OTAN." },
+      { q: "À quel mot correspond la lettre R dans l'alphabet OTAN ?", options: ["Roger", "Radar", "Robin", "Romeo"], answer: 3, expl: "R = Romeo dans l'alphabet phonétique OTAN." },
       { q: "À quel mot correspond la lettre S dans l'alphabet OTAN ?", options: ["Sugar", "Sierra", "Sigma", "Simon"], answer: 1, expl: "S = Sierra dans l'alphabet phonétique OTAN." },
       { q: "À quel mot correspond la lettre T dans l'alphabet OTAN ?", options: ["Tiger", "Tango", "Texas", "Tokyo"], answer: 1, expl: "T = Tango dans l'alphabet phonétique OTAN." },
       { q: "À quel mot correspond la lettre U dans l'alphabet OTAN ?", options: ["Ultra", "Uncle", "Uniform", "Union"], answer: 2, expl: "U = Uniform dans l'alphabet phonétique OTAN." },
       { q: "À quel mot correspond la lettre V dans l'alphabet OTAN ?", options: ["Victor", "Vega", "Volta", "Venus"], answer: 0, expl: "V = Victor dans l'alphabet phonétique OTAN." },
       { q: "À quel mot correspond la lettre W dans l'alphabet OTAN ?", options: ["Walter", "Whiskey", "Wilson", "Warsaw"], answer: 1, expl: "W = Whiskey dans l'alphabet phonétique OTAN." },
       { q: "À quel mot correspond la lettre X dans l'alphabet OTAN ?", options: ["Xena", "Xavier", "X-ray", "Xerox"], answer: 2, expl: "X = X-ray dans l'alphabet phonétique OTAN." },
-      { q: "À quel mot correspond la lettre Y dans l'alphabet OTAN ?", options: ["Yankee", "Yellow", "York", "Yeti"], answer: 0, expl: "Y = Yankee dans l'alphabet phonétique OTAN." },
+      { q: "À quel mot correspond la lettre Y dans l'alphabet OTAN ?", options: ["Yellow", "York", "Yeti", "Yankee"], answer: 3, expl: "Y = Yankee dans l'alphabet phonétique OTAN." },
       { q: "À quel mot correspond la lettre Z dans l'alphabet OTAN ?", options: ["Zulu", "Zero", "Zeus", "Zebra"], answer: 0, expl: "Z = Zulu dans l'alphabet phonétique OTAN." },
     ]
   },
   {
-    id: "organisation", name: "Organisation", icon: "⚙️", color: "#4dfa8a",
+    id: "organisation",
+    name: "Organisation",
+    icon: "⚙️",
+    color: "#4dfa8a",
     questions: [
       { q: "Combien de soldats composent un groupe de combat ?", options: ["4 à 6", "8 à 12", "20 à 30", "50 à 80"], answer: 1, expl: "Un groupe de combat est composé de 8 à 12 soldats, unité de base de l'infanterie." },
       { q: "Combien de groupes composent une section ?", options: ["2", "3 à 4", "6 à 8", "10"], answer: 1, expl: "Une section est composée de 3 à 4 groupes de combat, soit environ 30 à 40 soldats." },
       { q: "Combien de sections composent une compagnie ?", options: ["2", "3 à 4", "6 à 8", "10 à 12"], answer: 1, expl: "Une compagnie est composée de 3 à 4 sections, soit environ 100 à 150 soldats." },
       { q: "Quel est le chef d'un groupe de combat ?", options: ["Sergent ou Caporal-chef", "Lieutenant", "Capitaine", "Commandant"], answer: 0, expl: "Un groupe de combat est commandé par un Sergent ou un Caporal-chef." },
-      { q: "Quel est le chef d'une section ?", options: ["Sergent-chef", "Adjudant", "Lieutenant ou Sous-lieutenant", "Capitaine"], answer: 2, expl: "Une section est commandée par un Lieutenant ou un Sous-lieutenant." },
+      { q: "Quel est le chef d'une section ?", options: ["Sergent-chef", "Adjudant", "Lieutenant ou Sous-lieutenant", "Capitaine"], answer: 2, expl: "Une section est commandée par un Lieutenant ou un Sous-lieutenant, assisté d'un Adjudant." },
       { q: "Quel est le chef d'une compagnie ?", options: ["Lieutenant", "Commandant", "Capitaine", "Colonel"], answer: 2, expl: "Une compagnie est commandée par un Capitaine." },
     ]
   },
   {
-    id: "histoire", name: "Histoire", icon: "📜", color: "#ff6b6b",
+    id: "histoire",
+    name: "Histoire",
+    icon: "📜",
+    color: "#ff6b6b",
     questions: [
-      { q: "En quelle année a eu lieu la bataille de Verdun ?", options: ["1914", "1916", "1918", "1940"], answer: 1, expl: "La bataille de Verdun s'est déroulée du 21 février au 18 décembre 1916." },
-      { q: "Qui a lancé l'Appel du 18 juin 1940 ?", options: ["Philippe Pétain", "Charles de Gaulle", "Jean Moulin", "Georges Clemenceau"], answer: 1, expl: "Le général Charles de Gaulle a lancé son appel depuis Londres le 18 juin 1940." },
+      { q: "En quelle année a eu lieu la bataille de Verdun ?", options: ["1914", "1916", "1918", "1940"], answer: 1, expl: "La bataille de Verdun s'est déroulée du 21 février au 18 décembre 1916, l'une des plus meurtrières de la Première Guerre mondiale." },
+      { q: "Qui a lancé l'Appel du 18 juin 1940 ?", options: ["Philippe Pétain", "Charles de Gaulle", "Jean Moulin", "Georges Clemenceau"], answer: 1, expl: "Le général Charles de Gaulle a lancé son célèbre appel depuis Londres le 18 juin 1940, refusant la défaite face à l'Allemagne nazie." },
       { q: "En quelle année a été créée la Légion étrangère ?", options: ["1815", "1831", "1870", "1914"], answer: 1, expl: "La Légion étrangère a été créée le 9 mars 1831 par le roi Louis-Philippe Ier." },
-      { q: "Quel est le cri de guerre de la Légion étrangère ?", options: ["Vive la France !", "Camerone !", "En avant !", "Honneur et Fidélité !"], answer: 1, expl: "Camerone fait référence à la bataille du 30 avril 1863 au Mexique, symbole du sacrifice de la Légion." },
-      { q: "En quelle année la France a-t-elle suspendu le service militaire obligatoire ?", options: ["1989", "1996", "2001", "2005"], answer: 1, expl: "La professionnalisation de l'armée française a été décidée en 1996 par Jacques Chirac." },
+      { q: "Quel est le cri de guerre de la Légion étrangère ?", options: ["Vive la France !", "Camerone !", "En avant !", "Honneur et Fidélité !"], answer: 1, expl: "Camerone fait référence à la bataille de Camerone (30 avril 1863) au Mexique, symbole du sacrifice et de la fidélité de la Légion." },
+      { q: "En quelle année la France a-t-elle professionnalisé son armée (fin du service militaire) ?", options: ["1989", "1996", "2001", "2005"], answer: 1, expl: "La professionnalisation de l'armée française a été décidée en 1996 par Jacques Chirac, avec la suspension du service militaire obligatoire." },
     ]
   }
 ];
@@ -236,157 +247,187 @@ let currentTheme = null;
 let currentQ = 0;
 let sessionCorrect = 0;
 let answered = false;
-let currentTab = “home”;
+let currentTab = "home";
 
-function loadScores() { try { const s = localStorage.getItem(“qcm_sog_v1”); if (s) scores = JSON.parse(s); } catch(e) {} }
-function saveScores() { localStorage.setItem(“qcm_sog_v1”, JSON.stringify(scores)); }
+function loadScores() { try { const s = localStorage.getItem("qcm_sog_v1"); if (s) scores = JSON.parse(s); } catch(e) {} }
+function saveScores() { localStorage.setItem("qcm_sog_v1", JSON.stringify(scores)); }
+
 function getPct(id) { const s = scores[id]; if (!s || s.total === 0) return null; return Math.round((s.correct / s.total) * 100); }
+
 function getTotalStats() {
-let total = 0, correct = 0, done = 0;
-THEMES.forEach(t => { const s = scores[t.id]; if (s && s.total > 0) { total += s.total; correct += s.correct; done++; } });
-return { total, correct, done };
+  let total = 0, correct = 0, done = 0;
+  THEMES.forEach(t => { const s = scores[t.id]; if (s && s.total > 0) { total += s.total; correct += s.correct; done++; } });
+  return { total, correct, done };
 }
 
 function render() {
-updateHeader();
-const c = document.getElementById(“content”);
-c.innerHTML = “”;
-if (currentTab === “home”) renderHome(c);
-else if (currentTab === “scores”) renderScores(c);
-else if (currentTab === “qcm”) renderQCM(c);
+  updateHeader();
+  const c = document.getElementById("content");
+  c.innerHTML = "";
+  if (currentTab === "home") renderHome(c);
+  else if (currentTab === "scores") renderScores(c);
+  else if (currentTab === "qcm") renderQCM(c);
 }
 
 function updateHeader() {
-const el = document.getElementById(“headerStats”);
-const { total, correct } = getTotalStats();
-if (!total) { el.innerHTML = “”; return; }
-const pct = Math.round((correct / total) * 100);
-const cls = pct >= 80 ? “good” : pct < 50 ? “bad” : “”;
-el.innerHTML = `<div class="stat-pill ${cls}">${pct}% réussite</div><div class="stat-pill">${correct}/${total} bonnes rép.</div>`;
+  const el = document.getElementById("headerStats");
+  const { total, correct } = getTotalStats();
+  if (!total) { el.innerHTML = ""; return; }
+  const pct = Math.round((correct / total) * 100);
+  const cls = pct >= 80 ? "good" : pct < 50 ? "bad" : "";
+  el.innerHTML = `<div class="stat-pill ${cls}">${pct}% réussite</div><div class="stat-pill">${correct}/${total} bonnes rép.</div>`;
 }
 
 function renderHome(c) {
-const { total, correct, done } = getTotalStats();
-if (total > 0) {
-const pct = Math.round((correct / total) * 100);
-const cls = pct >= 80 ? “green” : “gold”;
-c.innerHTML += `<div class="global-stats"> <div class="gstat"><div class="gstat-val ${cls}">${pct}%</div><div class="gstat-label">Réussite</div></div> <div class="gstat"><div class="gstat-val">${correct}</div><div class="gstat-label">Bonnes rép.</div></div> <div class="gstat"><div class="gstat-val">${total-correct}</div><div class="gstat-label">Erreurs</div></div> <div class="gstat"><div class="gstat-val">${done}/4</div><div class="gstat-label">Thèmes</div></div> </div>`;
-}
-let grid = ‘<div class="home-grid">’;
-THEMES.forEach(t => {
-const pct = getPct(t.id);
-const s = scores[t.id];
-const scoreHtml = pct !== null
-? `<div class="theme-score" style="color:${t.color}">${pct}% · ${s.correct}/${s.total}</div><div class="score-bar"><div class="score-fill" style="width:${pct}%;background-color:${t.color}"></div></div>`
-: `<div class="theme-score" style="color:#3a3a5a">Non commencé</div><div class="score-bar"><div class="score-fill" style="width:0%"></div></div>`;
-grid += `<button class="theme-card" style="--c:${t.color}" onclick="startTheme('${t.id}')"> <span class="theme-icon">${t.icon}</span> <div class="theme-name">${t.name}</div> <div class="theme-count">${t.questions.length} QUESTION${t.questions.length>1?'S':''}</div> ${scoreHtml} </button>`;
-});
-grid += ‘</div>’;
-c.innerHTML += grid;
+  const { total, correct, done } = getTotalStats();
+  if (total > 0) {
+    const pct = Math.round((correct / total) * 100);
+    const cls = pct >= 80 ? "green" : "gold";
+    c.innerHTML += `<div class="global-stats">
+      <div class="gstat"><div class="gstat-val ${cls}">${pct}%</div><div class="gstat-label">Réussite</div></div>
+      <div class="gstat"><div class="gstat-val">${correct}</div><div class="gstat-label">Bonnes rép.</div></div>
+      <div class="gstat"><div class="gstat-val">${total - correct}</div><div class="gstat-label">Erreurs</div></div>
+      <div class="gstat"><div class="gstat-val">${done}/4</div><div class="gstat-label">Thèmes</div></div>
+    </div>`;
+  }
+  let grid = '<div class="home-grid">';
+  THEMES.forEach(t => {
+    const pct = getPct(t.id);
+    const s = scores[t.id];
+    const scoreHtml = pct !== null
+      ? `<div class="theme-score" style="color:${t.color}">${pct}% · ${s.correct}/${s.total}</div><div class="score-bar"><div class="score-fill" style="width:${pct}%;background:${t.color}"></div></div>`
+      : `<div class="theme-score" style="color:var(--dim)">Non commencé</div><div class="score-bar"><div class="score-fill" style="width:0%"></div></div>`;
+    grid += `<div class="theme-card" style="--card-color:${t.color}" onclick="startTheme('${t.id}')">
+      <span class="theme-icon">${t.icon}</span>
+      <div class="theme-name">${t.name}</div>
+      <div class="theme-count">${t.questions.length} QUESTION${t.questions.length > 1 ? 'S' : ''}</div>
+      ${scoreHtml}
+    </div>`;
+  });
+  grid += '</div>';
+  c.innerHTML += grid;
 }
 
 function renderScores(c) {
-const { total } = getTotalStats();
-if (!total) { c.innerHTML = `<div class="empty-scores"><div class="empty-icon">🏆</div><p>Aucun score encore.<br>Lance un QCM !</p></div>`; return; }
-let html = ‘<div class="scores-list">’;
-THEMES.forEach(t => {
-const pct = getPct(t.id);
-const s = scores[t.id];
-const pctStr = pct !== null ? `${pct}%` : “—”;
-const sub = s && s.total > 0 ? `${s.correct}/${s.total} · ${s.attempts} tentative${s.attempts>1?'s':''}` : “Non commencé”;
-html += `<div class="score-item"> <div class="score-icon">${t.icon}</div> <div class="score-info"> <div class="score-theme">${t.name}</div> <div class="score-sub">${sub}</div> <div class="score-bar" style="margin-top:6px"><div class="score-fill" style="width:${pct??0}%;background-color:${t.color}"></div></div> </div> <div class="score-pct ${pct===null?'none':''}" style="${pct!==null?`color:${t.color}`:''}">${pctStr}</div> </div>`;
-});
-html += ‘</div><button class="reset-btn" onclick="resetScores()">EFFACER LES SCORES</button>’;
-c.innerHTML = html;
+  const { total } = getTotalStats();
+  if (!total) { c.innerHTML = `<div class="empty-scores"><div class="empty-icon">🏆</div><p>Aucun score encore.<br>Lance un QCM !</p></div>`; return; }
+  let html = '<div class="scores-list">';
+  THEMES.forEach(t => {
+    const pct = getPct(t.id);
+    const s = scores[t.id];
+    const pctStr = pct !== null ? `${pct}%` : "—";
+    const sub = s && s.total > 0 ? `${s.correct}/${s.total} · ${s.attempts} tentative${s.attempts > 1 ? 's' : ''}` : "Non commencé";
+    html += `<div class="score-item">
+      <div class="score-icon">${t.icon}</div>
+      <div class="score-info">
+        <div class="score-theme">${t.name}</div>
+        <div class="score-sub">${sub}</div>
+        <div class="score-bar" style="margin-top:6px"><div class="score-fill" style="width:${pct ?? 0}%;background:${t.color}"></div></div>
+      </div>
+      <div class="score-pct ${pct === null ? 'none' : ''}" style="${pct !== null ? `color:${t.color}` : ''}">${pctStr}</div>
+    </div>`;
+  });
+  html += '</div><button class="reset-btn" onclick="resetScores()">EFFACER LES SCORES</button>';
+  c.innerHTML = html;
 }
 
 function startTheme(id) {
-currentTheme = THEMES.find(t => t.id === id);
-currentQ = 0; sessionCorrect = 0; answered = false;
-currentTheme._shuffled = […currentTheme.questions].sort(() => Math.random() - 0.5);
-currentTab = “qcm”;
-document.querySelectorAll(”.tab”).forEach(t => t.classList.remove(“active”));
-render();
+  currentTheme = THEMES.find(t => t.id === id);
+  currentQ = 0; sessionCorrect = 0; answered = false;
+  currentTheme._shuffled = [...currentTheme.questions].sort(() => Math.random() - 0.5);
+  currentTab = "qcm";
+  document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+  render();
 }
 
 function renderQCM(c) {
-const questions = currentTheme._shuffled;
-if (currentQ >= questions.length) { renderResult(c); return; }
-const q = questions[currentQ];
-const progress = (currentQ / questions.length) * 100;
-const letters = [“A”,“B”,“C”,“D”];
-const imgHtml = q.img ? `<img src="${q.img}" class="question-img" alt="Grade"/>` : “”;
-let html = ` <div class="qcm-header"> <button class="back-btn" onclick="goHome()">← RETOUR</button> <div class="qcm-title">${currentTheme.icon} ${currentTheme.name}</div> </div> <div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div> <div class="question-num">QUESTION ${currentQ+1} / ${questions.length}</div> <div class="question-text">${q.q}</div> ${imgHtml} <div class="options" id="options">`;
-q.options.forEach((opt, i) => {
-html += `<button class="option-btn" onclick="answer(${i})" id="opt${i}"><span class="option-letter">${letters[i]}</span>${opt}</button>`;
-});
-html += `</div> <div class="explanation" id="expl"><strong>💡 Explication :</strong> ${q.expl}</div> <button class="next-btn" id="nextBtn" onclick="nextQ()">${currentQ+1 < questions.length ? 'QUESTION SUIVANTE →' : 'VOIR LES RÉSULTATS →'}</button>`;
-c.innerHTML = html;
+  const questions = currentTheme._shuffled;
+  if (currentQ >= questions.length) { renderResult(c); return; }
+  const q = questions[currentQ];
+  const progress = (currentQ / questions.length) * 100;
+  const letters = ["A", "B", "C", "D"];
+  const imgHtml = q.img ? `<img src="${q.img}" class="question-img" alt="Grade"/>` : "";
+  let html = `
+    <div class="qcm-header">
+      <button class="back-btn" onclick="goHome()">← RETOUR</button>
+      <div class="qcm-title">${currentTheme.icon} ${currentTheme.name}</div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div>
+    <div class="question-num">QUESTION ${currentQ + 1} / ${questions.length}</div>
+    <div class="question-text">${q.q}</div>
+    ${imgHtml}
+    <div class="options" id="options">`;
+  q.options.forEach((opt, i) => {
+    html += `<button class="option-btn" onclick="answer(${i})" id="opt${i}"><span class="option-letter">${letters[i]}</span>${opt}</button>`;
+  });
+  html += `</div>
+    <div class="explanation" id="expl"><strong>💡 Explication :</strong> ${q.expl}</div>
+    <button class="next-btn" id="nextBtn" onclick="nextQ()">${currentQ + 1 < questions.length ? 'QUESTION SUIVANTE →' : 'VOIR LES RÉSULTATS →'}</button>`;
+  c.innerHTML = html;
 }
 
 function answer(idx) {
-if (answered) return;
-answered = true;
-const q = currentTheme.*shuffled[currentQ];
-q.options.forEach((*, i) => {
-const btn = document.getElementById(`opt${i}`);
-btn.disabled = true;
-if (i === q.answer) btn.classList.add(idx === q.answer ? “correct” : “reveal-correct”);
-if (i === idx && idx !== q.answer) btn.classList.add(“wrong”);
-});
-if (idx === q.answer) sessionCorrect++;
-document.getElementById(“expl”).classList.add(“visible”);
-document.getElementById(“nextBtn”).classList.add(“visible”);
+  if (answered) return;
+  answered = true;
+  const q = currentTheme._shuffled[currentQ];
+  q.options.forEach((_, i) => {
+    const btn = document.getElementById(`opt${i}`);
+    btn.disabled = true;
+    if (i === q.answer) btn.classList.add(idx === q.answer ? "correct" : "reveal-correct");
+    if (i === idx && idx !== q.answer) btn.classList.add("wrong");
+  });
+  if (idx === q.answer) sessionCorrect++;
+  document.getElementById("expl").classList.add("visible");
+  document.getElementById("nextBtn").classList.add("visible");
 }
 
 function nextQ() { currentQ++; answered = false; render(); }
 
 function renderResult(c) {
-const total = currentTheme._shuffled.length;
-const pct = Math.round((sessionCorrect / total) * 100);
-const cls = pct >= 80 ? “excellent” : pct >= 50 ? “good-score” : “bad-score”;
-const msg = pct >= 80 ? “EXCELLENT !” : pct >= 50 ? “BON TRAVAIL” : “À REVOIR”;
-if (!scores[currentTheme.id]) scores[currentTheme.id] = { correct: 0, total: 0, attempts: 0 };
-scores[currentTheme.id].correct += sessionCorrect;
-scores[currentTheme.id].total += total;
-scores[currentTheme.id].attempts++;
-saveScores();
-c.innerHTML = `<div class="result-wrap">
-<div class="result-score ${cls}">${pct}%</div>
-<div class="result-label">${msg}</div>
-<div class="result-details">
-<div class="detail-row"><span class="detail-label">Bonnes réponses</span><span class="detail-val green">${sessionCorrect} / ${total}</span></div>
-<div class="detail-row"><span class="detail-label">Erreurs</span><span class="detail-val red">${total-sessionCorrect}</span></div>
-<div class="detail-row"><span class="detail-label">Thème</span><span class="detail-val">${currentTheme.icon} ${currentTheme.name}</span></div>
-</div>
-<div class="result-btns">
-<button class="btn-retry" onclick="startTheme('${currentTheme.id}')">🔄 RECOMMENCER</button>
-<button class="btn-home" onclick="goHome()">← ACCUEIL</button>
-</div>
-
+  const total = currentTheme._shuffled.length;
+  const pct = Math.round((sessionCorrect / total) * 100);
+  const cls = pct >= 80 ? "excellent" : pct >= 50 ? "good-score" : "bad-score";
+  const msg = pct >= 80 ? "EXCELLENT !" : pct >= 50 ? "BON TRAVAIL" : "À REVOIR";
+  if (!scores[currentTheme.id]) scores[currentTheme.id] = { correct: 0, total: 0, attempts: 0 };
+  scores[currentTheme.id].correct += sessionCorrect;
+  scores[currentTheme.id].total += total;
+  scores[currentTheme.id].attempts++;
+  saveScores();
+  c.innerHTML = `<div class="result-wrap">
+    <div class="result-score ${cls}">${pct}%</div>
+    <div class="result-label">${msg}</div>
+    <div class="result-details">
+      <div class="detail-row"><span class="detail-label">Bonnes réponses</span><span class="detail-val green">${sessionCorrect} / ${total}</span></div>
+      <div class="detail-row"><span class="detail-label">Erreurs</span><span class="detail-val red">${total - sessionCorrect}</span></div>
+      <div class="detail-row"><span class="detail-label">Thème</span><span class="detail-val">${currentTheme.icon} ${currentTheme.name}</span></div>
+    </div>
+    <div class="result-btns">
+      <button class="btn-retry" onclick="startTheme('${currentTheme.id}')">🔄 RECOMMENCER</button>
+      <button class="btn-home" onclick="goHome()">← ACCUEIL</button>
+    </div>
   </div>`;
 }
 
 function goHome() {
-currentTheme = null; currentTab = “home”;
-document.querySelectorAll(”.tab”).forEach(t => t.classList.toggle(“active”, t.dataset.tab === “home”));
-render();
+  currentTheme = null; currentTab = "home";
+  document.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", t.dataset.tab === "home"));
+  render();
 }
 
 function resetScores() {
-if (!confirm(“Effacer tous les scores ?”)) return;
-scores = {}; saveScores(); render();
+  if (!confirm("Effacer tous les scores ?")) return;
+  scores = {}; saveScores(); render();
 }
 
-document.querySelectorAll(”.tab”).forEach(btn => {
-btn.addEventListener(“click”, () => {
-if (btn.dataset.tab === “qcm”) return;
-document.querySelectorAll(”.tab”).forEach(t => t.classList.remove(“active”));
-btn.classList.add(“active”);
-currentTab = btn.dataset.tab;
-currentTheme = null;
-render();
-});
+document.querySelectorAll(".tab").forEach(btn => {
+  btn.addEventListener("click", () => {
+    if (btn.dataset.tab === "qcm") return;
+    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+    btn.classList.add("active");
+    currentTab = btn.dataset.tab;
+    currentTheme = null;
+    render();
+  });
 });
 
 loadScores();
