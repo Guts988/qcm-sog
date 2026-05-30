@@ -1,440 +1,519 @@
-<!DOCTYPE html>
+import { useState } from "react";
 
-<html lang="fr">
-<head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>QCM SOG</title>
-<style>
-:root {
-  --bg: #07070f;
-  --surface: #0e0e1c;
-  --surface2: #13132a;
-  --border: #1e1e3a;
-  --border2: #2a2a4a;
-  --text: #e8e8ff;
-  --muted: #5a5a8a;
-  --dim: #3a3a5a;
-  --accent: #7b7bff;
-  --accent-dim: #3a3a8a;
-  --gold: #ffd166;
-  --up: #4dfa8a;
-  --up-bg: #081a10;
-  --up-dim: #4dfa8a22;
-  --down: #ff6b6b;
-  --down-bg: #1a0808;
-  --down-dim: #ff6b6b22;
-  --mono: ui-monospace, monospace;
-  --display: system-ui, -apple-system, sans-serif;
-  --radius: 12px;
-}
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { background: var(--bg); color: var(--text); font-family: var(--mono); min-height: 100vh; overflow-x: hidden; }
-body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E"); pointer-events: none; z-index: 0; opacity: 0.5; }
-.app { position: relative; z-index: 1; max-width: 680px; margin: 0 auto; padding-bottom: 80px; }
-
-.header { padding: 28px 20px 18px; border-bottom: 1px solid var(–border); background: linear-gradient(180deg, #0d0d1f 0%, transparent 100%); position: sticky; top: 0; z-index: 10; backdrop-filter: blur(14px); }
-.eyebrow { font-size: 9px; letter-spacing: 5px; color: var(–muted); text-transform: uppercase; margin-bottom: 5px; }
-.header h1 { font-family: var(–display); font-size: 22px; font-weight: 800; letter-spacing: -0.5px; display: flex; align-items: center; gap: 10px; }
-.header-badge { font-size: 9px; letter-spacing: 2px; background: var(–accent-dim); color: var(–accent); border: 1px solid var(–accent); border-radius: 4px; padding: 2px 8px; font-weight: 400; }
-.header-stats { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
-.stat-pill { background: var(–surface); border: 1px solid var(–border); border-radius: 20px; padding: 3px 12px; font-size: 11px; color: var(–muted); display: flex; align-items: center; gap: 5px; }
-.stat-pill .val { color: var(–text); font-weight: 500; }
-.stat-pill.good { background: var(–up-bg); border-color: var(–up-dim); color: var(–up); }
-.stat-pill.bad { background: var(–down-bg); border-color: var(–down-dim); color: var(–down); }
-
-.nav { display: flex; padding: 0 20px; border-bottom: 1px solid var(–border); overflow-x: auto; scrollbar-width: none; }
-.nav::-webkit-scrollbar { display: none; }
-.tab { background: none; border: none; border-bottom: 2px solid transparent; color: var(–muted); padding: 11px 14px; cursor: pointer; font-family: var(–mono); font-size: 11px; letter-spacing: 0.5px; transition: all 0.2s; white-space: nowrap; margin-bottom: -1px; }
-.tab.active { border-bottom-color: var(–accent); color: var(–text); }
-
-.content { padding: 20px; }
-
-.home-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }
-.theme-card { background: var(–surface); border: 1px solid var(–border); border-radius: var(–radius); padding: 18px 16px; cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden; text-align: left; }
-.theme-card::before { content: ‘’; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(–card-color, var(–accent)); }
-.theme-card:hover { border-color: var(–card-color, var(–accent)); background: var(–surface2); transform: translateY(-2px); }
-.theme-icon { font-size: 26px; margin-bottom: 10px; display: block; }
-.theme-name { font-family: var(–display); font-size: 13px; font-weight: 700; color: var(–text); margin-bottom: 4px; }
-.theme-count { font-size: 10px; color: var(–muted); letter-spacing: 1px; }
-.theme-score { margin-top: 10px; font-size: 11px; }
-.score-bar { height: 3px; background: var(–border); border-radius: 2px; margin-top: 5px; overflow: hidden; }
-.score-fill { height: 100%; border-radius: 2px; transition: width 0.5s ease; }
-
-.global-stats { background: var(–surface); border: 1px solid var(–border2); border-left: 3px solid var(–accent); border-radius: var(–radius); padding: 16px 18px; margin-bottom: 20px; display: flex; justify-content: space-around; gap: 10px; flex-wrap: wrap; }
-.gstat { text-align: center; }
-.gstat-val { font-family: var(–display); font-size: 28px; font-weight: 800; color: var(–text); line-height: 1; }
-.gstat-val.green { color: var(–up); }
-.gstat-val.gold { color: var(–gold); }
-.gstat-label { font-size: 9px; letter-spacing: 2px; color: var(–muted); text-transform: uppercase; margin-top: 4px; }
-
-.qcm-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
-.back-btn { background: var(–surface); border: 1px solid var(–border); color: var(–muted); padding: 8px 14px; border-radius: 6px; font-family: var(–mono); font-size: 11px; cursor: pointer; transition: all 0.2s; letter-spacing: 1px; }
-.qcm-title { font-family: var(–display); font-size: 16px; font-weight: 800; flex: 1; }
-
-.progress-bar { height: 3px; background: var(–border); border-radius: 2px; margin-bottom: 24px; overflow: hidden; }
-.progress-fill { height: 100%; background: var(–accent); border-radius: 2px; transition: width 0.4s ease; }
-
-.question-num { font-size: 9px; letter-spacing: 3px; color: var(–muted); text-transform: uppercase; margin-bottom: 10px; }
-.question-text { font-family: var(–display); font-size: 17px; font-weight: 700; color: var(–text); line-height: 1.4; margin-bottom: 16px; }
-
-.question-img { width: 100%; max-width: 340px; display: block; margin: 0 auto 20px; border-radius: 10px; border: 1px solid var(–border); }
-
-.options { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
-.option-btn { background: var(–surface); border: 1px solid var(–border); border-radius: 10px; padding: 14px 16px; color: var(–text); font-family: var(–mono); font-size: 13px; cursor: pointer; transition: all 0.2s; text-align: left; display: flex; align-items: center; gap: 12px; line-height: 1.4; }
-.option-btn:hover:not(:disabled) { border-color: var(–accent); background: var(–surface2); }
-.option-letter { width: 26px; height: 26px; border-radius: 50%; background: var(–border); color: var(–muted); font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s; }
-.option-btn.correct { border-color: var(–up); background: var(–up-bg); color: var(–up); }
-.option-btn.correct .option-letter { background: var(–up); color: #000; }
-.option-btn.wrong { border-color: var(–down); background: var(–down-bg); color: var(–down); }
-.option-btn.wrong .option-letter { background: var(–down); color: #000; }
-.option-btn.reveal-correct { border-color: var(–up); background: var(–up-bg); opacity: 0.6; }
-.option-btn:disabled { cursor: default; }
-
-.explanation { background: var(–surface2); border: 1px solid var(–border2); border-left: 3px solid var(–accent); border-radius: 8px; padding: 14px 16px; font-size: 12px; color: var(–muted); line-height: 1.7; margin-bottom: 20px; display: none; }
-.explanation.visible { display: block; }
-.explanation strong { color: var(–text); }
-
-.next-btn { background: var(–accent-dim); border: 1px solid var(–accent); color: var(–accent); border-radius: 8px; padding: 13px 20px; font-family: var(–mono); font-size: 12px; letter-spacing: 1px; cursor: pointer; transition: all 0.2s; width: 80%; display: none; margin: 0 auto; text-align: center; }
-.next-btn.visible { display: block; }
-.next-btn:hover { background: var(–accent); color: #000; }
-
-.result-wrap { text-align: center; padding: 20px 0; }
-.result-score { font-family: var(–display); font-size: 72px; font-weight: 800; line-height: 1; margin-bottom: 8px; }
-.result-score.excellent { color: var(–up); }
-.result-score.good-score { color: var(–gold); }
-.result-score.bad-score { color: var(–down); }
-.result-label { font-size: 10px; letter-spacing: 4px; color: var(–muted); text-transform: uppercase; margin-bottom: 30px; }
-.result-details { background: var(–surface); border: 1px solid var(–border); border-radius: var(–radius); padding: 16px; margin-bottom: 20px; text-align: left; }
-.detail-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(–border); font-size: 13px; }
-.detail-row:last-child { border-bottom: none; }
-.detail-label { color: var(–muted); }
-.detail-val.green { color: var(–up); }
-.detail-val.red { color: var(–down); }
-.result-btns { display: flex; flex-direction: column; gap: 10px; align-items: center; }
-.btn-retry { background: var(–accent-dim); border: 1px solid var(–accent); color: var(–accent); border-radius: 8px; padding: 13px 20px; font-family: var(–mono); font-size: 12px; letter-spacing: 1px; cursor: pointer; width: 80%; text-align: center; transition: all 0.2s; }
-.btn-retry:hover { background: var(–accent); color: #000; }
-.btn-home { background: transparent; border: 1px solid var(–border2); color: var(–muted); border-radius: 8px; padding: 13px 20px; font-family: var(–mono); font-size: 12px; letter-spacing: 1px; cursor: pointer; width: 80%; text-align: center; transition: all 0.2s; }
-
-.scores-list { display: flex; flex-direction: column; gap: 10px; }
-.score-item { background: var(–surface); border: 1px solid var(–border); border-radius: var(–radius); padding: 14px 16px; display: flex; align-items: center; gap: 14px; }
-.score-icon { font-size: 22px; }
-.score-info { flex: 1; }
-.score-theme { font-family: var(–display); font-size: 14px; font-weight: 700; margin-bottom: 3px; }
-.score-sub { font-size: 11px; color: var(–muted); }
-.score-pct { font-family: var(–display); font-size: 22px; font-weight: 800; }
-.score-pct.none { color: var(–dim); }
-.empty-scores { text-align: center; padding: 48px 20px; color: var(–muted); font-size: 13px; line-height: 1.7; }
-.empty-icon { font-size: 36px; margin-bottom: 12px; opacity: 0.3; }
-.reset-btn { background: transparent; border: 1px solid var(–down); color: var(–down); border-radius: 6px; padding: 8px 16px; font-family: var(–mono); font-size: 11px; cursor: pointer; letter-spacing: 1px; transition: all 0.2s; margin: 16px auto 0; display: block; width: 80%; text-align: center; }
-
-@keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-.content > * { animation: fadeUp 0.25s ease both; }
-@media (max-width: 400px) { .home-grid { grid-template-columns: 1fr; } .result-score { font-size: 56px; } }
-::-webkit-scrollbar { width: 4px; height: 4px; }
-::-webkit-scrollbar-track { background: var(–bg); }
-::-webkit-scrollbar-thumb { background: var(–border2); border-radius: 2px; }
-</style>
-
-</head>
-<body>
-<div class="app">
-  <div class="header">
-    <div class="eyebrow">Préparation Gendarmerie</div>
-    <h1>QCM SOG <span class="header-badge">SOG</span></h1>
-    <div class="header-stats" id="headerStats"></div>
-  </div>
-  <div class="nav">
-    <button class="tab active" data-tab="home">🏠 Accueil</button>
-    <button class="tab" data-tab="scores">🏆 Scores</button>
-  </div>
-  <div class="content" id="content"></div>
-</div>
-
-<script>
-const BASE = "https://guts988.github.io/qcm-sog/";
-
-const THEMES = [
-  {
-    id: "grades",
-    name: "Grades",
-    icon: "🎖️",
-    color: "#7b7bff",
-    questions: [
-      { q: "Quel est ce grade ?", img: BASE+"IMG_2109.jpeg", options: ["Soldat", "Soldat première classe", "Caporal", "Caporal-chef"], answer: 1, expl: "Le Soldat première classe porte 1 chevron rouge (armée de terre) ou bleu (marine) sur l'épaulette." },
-      { q: "Quel est ce grade ?", img: BASE+"IMG_2125.jpeg", options: ["Soldat première classe", "Caporal", "Caporal-chef", "Sergent"], answer: 1, expl: "Le Caporal porte 2 chevrons sur l'épaulette et 2 barrettes sur la tenue de campagne." },
-      { q: "Quel est ce grade ?", img: BASE+"IMG_2126.jpeg", options: ["Caporal", "Sergent", "Caporal-chef", "Caporal-chef première classe"], answer: 2, expl: "Le Caporal-chef porte des galons jaunes et rouges distinctifs sur l'épaulette." },
-      { q: "Quel est ce grade ?", img: BASE+"IMG_2127.jpeg", options: ["Caporal-chef", "Caporal-chef première classe", "Sergent", "Adjudant"], answer: 1, expl: "Le Caporal-chef première classe se distingue du Caporal-chef par une disposition légèrement différente des galons." },
-      { q: "Quel est ce grade ?", img: BASE+"IMG_2128.jpeg", options: ["Caporal-chef première classe", "Sergent", "Sergent-chef", "Adjudant"], answer: 1, expl: "Le Sergent porte 2 galons dorés sur l'épaulette et 2 barrettes dorées sur la tenue de campagne." },
-      { q: "Quel est ce grade ?", img: BASE+"IMG_2129.jpeg", options: ["Sergent", "Adjudant", "Sergent-chef", "Major"], answer: 2, expl: "Le Sergent-chef porte 3 galons dorés sur l'épaulette et 3 barrettes dorées sur la tenue de campagne." },
-      { q: "Quel est ce grade ?", img: BASE+"IMG_2130.jpeg", options: ["Sergent-chef", "Adjudant", "Major", "Adjudant-chef"], answer: 1, expl: "L'Adjudant porte une large bande avec un liseré rouge sur l'épaulette." },
-      { q: "Quel est ce grade ?", img: BASE+"IMG_2131.jpeg", options: ["Adjudant", "Major", "Adjudant-chef", "Aspirant"], answer: 2, expl: "L'Adjudant-chef se distingue de l'Adjudant par un galon doré plus fin ajouté." },
-      { q: "Quel est ce grade ?", img: BASE+"IMG_2132.jpeg", options: ["Adjudant-chef", "Major", "Aspirant", "Sous-lieutenant"], answer: 1, expl: "Le Major est le plus haut grade de sous-officier, il porte 2 larges galons sur l'épaulette." },
-      { q: "Quel est ce grade ?", img: BASE+"IMG_2133.jpeg", options: ["Major", "Sous-lieutenant", "Aspirant", "Lieutenant"], answer: 2, expl: "L'Aspirant est un grade de transition entre sous-officier et officier, il porte un galon doré avec un filet noir." },
-      { q: "Quel est ce grade ?", img: BASE+"IMG_2134.jpeg", options: ["Aspirant", "Sous-lieutenant", "Lieutenant", "Capitaine"], answer: 1, expl: "Le Sous-lieutenant porte 1 galon doré sur l'épaulette, premier grade d'officier." },
-      { q: "Quel est ce grade ?", img: BASE+"IMG_2135.jpeg", options: ["Sous-lieutenant", "Lieutenant", "Capitaine", "Commandant"], answer: 1, expl: "Le Lieutenant porte 2 galons dorés sur l'épaulette." },
-      { q: "Quel est ce grade ?", img: BASE+"IMG_2136.jpeg", options: ["Lieutenant", "Commandant", "Capitaine", "Lieutenant-colonel"], answer: 2, expl: "Le Capitaine porte 3 galons dorés sur l'épaulette." },
-      { q: "Quel est ce grade ?", img: BASE+"IMG_2137.jpeg", options: ["Capitaine", "Commandant", "Lieutenant-colonel", "Colonel"], answer: 1, expl: "Le Commandant porte 4 galons dorés sur l'épaulette, premier grade d'officier supérieur." },
-      { q: "Quel est ce grade ?", img: BASE+"IMG_2138.jpeg", options: ["Commandant", "Colonel", "Lieutenant-colonel", "Général"], answer: 2, expl: "Le Lieutenant-colonel porte 4 galons dont un argenté au milieu sur l'épaulette." },
-      { q: "Quel est ce grade ?", img: BASE+"IMG_2139.jpeg", options: ["Lieutenant-colonel", "Général", "Commandant", "Colonel"], answer: 3, expl: "Le Colonel porte 5 galons dorés sur l'épaulette, plus haut grade d'officier supérieur avant général." },
-    ]
-  },
-  {
-    id: "alpha",
-    name: "Code Alphanumérique",
-    icon: "🔤",
-    color: "#ffd166",
-    questions: [
-      { q: "À quel mot correspond la lettre A dans l'alphabet OTAN ?", options: ["Amber", "Alpha", "Arrow", "Angel"], answer: 1, expl: "A = Alpha dans l'alphabet phonétique OTAN." },
-      { q: "À quel mot correspond la lettre B dans l'alphabet OTAN ?", options: ["Beta", "Baker", "Bravo", "Bruno"], answer: 2, expl: "B = Bravo dans l'alphabet phonétique OTAN." },
-      { q: "À quel mot correspond la lettre C dans l'alphabet OTAN ?", options: ["Cobra", "César", "Cuba", "Charlie"], answer: 3, expl: "C = Charlie dans l'alphabet phonétique OTAN." },
-      { q: "À quel mot correspond la lettre D dans l'alphabet OTAN ?", options: ["Delta", "Diego", "David", "Dupont"], answer: 0, expl: "D = Delta dans l'alphabet phonétique OTAN." },
-      { q: "À quel mot correspond la lettre E dans l'alphabet OTAN ?", options: ["Easy", "Eagle", "Echo", "Ernest"], answer: 2, expl: "E = Echo dans l'alphabet phonétique OTAN." },
-      { q: "À quel mot correspond la lettre F dans l'alphabet OTAN ?", options: ["Fox", "Frank", "Foxtrot", "France"], answer: 2, expl: "F = Foxtrot dans l'alphabet phonétique OTAN." },
-      { q: "À quel mot correspond la lettre G dans l'alphabet OTAN ?", options: ["Gamma", "George", "Golf", "Gustav"], answer: 2, expl: "G = Golf dans l'alphabet phonétique OTAN." },
-      { q: "À quel mot correspond la lettre H dans l'alphabet OTAN ?", options: ["Henry", "Hotel", "Hugo", "Hector"], answer: 1, expl: "H = Hotel dans l'alphabet phonétique OTAN." },
-      { q: "À quel mot correspond la lettre I dans l'alphabet OTAN ?", options: ["Ivan", "Igloo", "India", "Iris"], answer: 2, expl: "I = India dans l'alphabet phonétique OTAN." },
-      { q: "À quel mot correspond la lettre J dans l'alphabet OTAN ?", options: ["Juliet", "James", "Jupiter", "Joker"], answer: 0, expl: "J = Juliet dans l'alphabet phonétique OTAN." },
-      { q: "À quel mot correspond la lettre K dans l'alphabet OTAN ?", options: ["King", "Kilo", "Karma", "Klaus"], answer: 1, expl: "K = Kilo dans l'alphabet phonétique OTAN." },
-      { q: "À quel mot correspond la lettre L dans l'alphabet OTAN ?", options: ["Lima", "London", "Leo", "Lama"], answer: 0, expl: "L = Lima dans l'alphabet phonétique OTAN." },
-      { q: "À quel mot correspond la lettre M dans l'alphabet OTAN ?", options: ["Metro", "Mike", "Marco", "Mario"], answer: 1, expl: "M = Mike dans l'alphabet phonétique OTAN." },
-      { q: "À quel mot correspond la lettre N dans l'alphabet OTAN ?", options: ["Nano", "Nice", "November", "Nord"], answer: 2, expl: "N = November dans l'alphabet phonétique OTAN." },
-      { q: "À quel mot correspond la lettre O dans l'alphabet OTAN ?", options: ["Oscar", "Omega", "Otto", "Opera"], answer: 0, expl: "O = Oscar dans l'alphabet phonétique OTAN." },
-      { q: "À quel mot correspond la lettre P dans l'alphabet OTAN ?", options: ["Pedro", "Paris", "Papa", "Paulo"], answer: 2, expl: "P = Papa dans l'alphabet phonétique OTAN." },
-      { q: "À quel mot correspond la lettre Q dans l'alphabet OTAN ?", options: ["Queen", "Quebec", "Quest", "Quinn"], answer: 1, expl: "Q = Quebec dans l'alphabet phonétique OTAN." },
-      { q: "À quel mot correspond la lettre R dans l'alphabet OTAN ?", options: ["Roger", "Radar", "Robin", "Romeo"], answer: 3, expl: "R = Romeo dans l'alphabet phonétique OTAN." },
-      { q: "À quel mot correspond la lettre S dans l'alphabet OTAN ?", options: ["Sugar", "Sierra", "Sigma", "Simon"], answer: 1, expl: "S = Sierra dans l'alphabet phonétique OTAN." },
-      { q: "À quel mot correspond la lettre T dans l'alphabet OTAN ?", options: ["Tiger", "Tango", "Texas", "Tokyo"], answer: 1, expl: "T = Tango dans l'alphabet phonétique OTAN." },
-      { q: "À quel mot correspond la lettre U dans l'alphabet OTAN ?", options: ["Ultra", "Uncle", "Uniform", "Union"], answer: 2, expl: "U = Uniform dans l'alphabet phonétique OTAN." },
-      { q: "À quel mot correspond la lettre V dans l'alphabet OTAN ?", options: ["Victor", "Vega", "Volta", "Venus"], answer: 0, expl: "V = Victor dans l'alphabet phonétique OTAN." },
-      { q: "À quel mot correspond la lettre W dans l'alphabet OTAN ?", options: ["Walter", "Whiskey", "Wilson", "Warsaw"], answer: 1, expl: "W = Whiskey dans l'alphabet phonétique OTAN." },
-      { q: "À quel mot correspond la lettre X dans l'alphabet OTAN ?", options: ["Xena", "Xavier", "X-ray", "Xerox"], answer: 2, expl: "X = X-ray dans l'alphabet phonétique OTAN." },
-      { q: "À quel mot correspond la lettre Y dans l'alphabet OTAN ?", options: ["Yellow", "York", "Yeti", "Yankee"], answer: 3, expl: "Y = Yankee dans l'alphabet phonétique OTAN." },
-      { q: "À quel mot correspond la lettre Z dans l'alphabet OTAN ?", options: ["Zulu", "Zero", "Zeus", "Zebra"], answer: 0, expl: "Z = Zulu dans l'alphabet phonétique OTAN." },
-    ]
-  },
-  {
-    id: "organisation",
-    name: "Organisation",
-    icon: "⚙️",
-    color: "#4dfa8a",
-    questions: [
-      { q: "Combien de soldats composent un groupe de combat ?", options: ["4 à 6", "8 à 12", "20 à 30", "50 à 80"], answer: 1, expl: "Un groupe de combat est composé de 8 à 12 soldats, unité de base de l'infanterie." },
-      { q: "Combien de groupes composent une section ?", options: ["2", "3 à 4", "6 à 8", "10"], answer: 1, expl: "Une section est composée de 3 à 4 groupes de combat, soit environ 30 à 40 soldats." },
-      { q: "Combien de sections composent une compagnie ?", options: ["2", "3 à 4", "6 à 8", "10 à 12"], answer: 1, expl: "Une compagnie est composée de 3 à 4 sections, soit environ 100 à 150 soldats." },
-      { q: "Quel est le chef d'un groupe de combat ?", options: ["Sergent ou Caporal-chef", "Lieutenant", "Capitaine", "Commandant"], answer: 0, expl: "Un groupe de combat est commandé par un Sergent ou un Caporal-chef." },
-      { q: "Quel est le chef d'une section ?", options: ["Sergent-chef", "Adjudant", "Lieutenant ou Sous-lieutenant", "Capitaine"], answer: 2, expl: "Une section est commandée par un Lieutenant ou un Sous-lieutenant, assisté d'un Adjudant." },
-      { q: "Quel est le chef d'une compagnie ?", options: ["Lieutenant", "Commandant", "Capitaine", "Colonel"], answer: 2, expl: "Une compagnie est commandée par un Capitaine." },
-    ]
-  },
-  {
-    id: "histoire",
-    name: "Histoire",
-    icon: "📜",
-    color: "#ff6b6b",
-    questions: [
-      { q: "En quelle année a été créée la Gendarmerie nationale ?", options: ["14 février 1789", "16 février 1791", "1er mars 1800", "12 juin 1804"], answer: 1, expl: "La Gendarmerie nationale a été créée le 16 février 1791, sous la Révolution française." },
-      { q: "En quelle année a été créée la Gendarmerie mobile ?", options: ["1914", "1918", "1921", "1935"], answer: 2, expl: "La Gendarmerie mobile a été créée en 1921, après la Première Guerre mondiale." },
-      { q: "En quelle année a été créée la Garde républicaine ?", options: ["1914", "1921", "1926", "1945"], answer: 2, expl: "La Garde républicaine a été créée en 1926." },
-      { q: "En quelle année a été créé le GIGN ?", options: ["1968", "1972", "1974", "1980"], answer: 2, expl: "Le GIGN a été créé en 1974, après la prise d'otages aux JO de Munich (1972)." },
-      { q: "En quelle année a eu lieu la prise d'otages d'Ouvéa ?", options: ["1985", "1986", "1988", "1990"], answer: 2, expl: "La prise d'otages d'Ouvéa s'est déroulée en 1988 en Nouvelle-Calédonie." },
-      { q: "En quelle année a eu lieu la prise d'otages de Marignane ?", options: ["1992", "1993", "1994", "1995"], answer: 2, expl: "La prise d'otages de l'avion d'Air France à Marignane a eu lieu en décembre 1994." },
-      { q: "Quand a eu lieu l'attentat du Bataclan ?", options: ["13 novembre 2014", "13 novembre 2015", "14 juillet 2015", "14 juillet 2016"], answer: 1, expl: "L'attentat du Bataclan à Paris a eu lieu le 13 novembre 2015, faisant 130 victimes." },
-      { q: "Quand a eu lieu l'attentat de Nice ?", options: ["13 novembre 2015", "13 juillet 2016", "14 juillet 2016", "14 juillet 2017"], answer: 2, expl: "L'attentat de Nice a eu lieu le 14 juillet 2016 sur la Promenade des Anglais, faisant 86 victimes." }]
-  }
+const zones = [
+  { name: "Z1 — Fondamentale", pct: "60-70%", speed: "8.4–9.8 km/h", pace: "6:07–7:09/km", feel: "Conversation facile", color: "#2DD55B" },
+  { name: "Z2 — Aérobie", pct: "70-80%", speed: "9.8–11.2 km/h", pace: "5:21–6:07/km", feel: "Phrases courtes", color: "#FFB800" },
+  { name: "Z3 — Seuil", pct: "83-87%", speed: "11.6–12.2 km/h", pace: "4:55–5:10/km", feel: "Discours difficile", color: "#FF8A00" },
+  { name: "Z4 — VMA", pct: "95-105%", speed: "13.3–14.7 km/h", pace: "4:05–4:31/km", feel: "Quasi impossible de parler", color: "#FF4A00" },
+  { name: "Récup Billat", pct: "50-55%", speed: "7.0–7.7 km/h", pace: "7:48–8:34/km", feel: "Trot très lent / marche", color: "#64748B" },
 ];
 
-let scores = {};
-let currentTheme = null;
-let currentQ = 0;
-let sessionCorrect = 0;
-let answered = false;
-let currentTab = "home";
+const months = [
+  {
+    number: 1, phase: "FONDATIONS", phaseN: 1,
+    goal: "Adapter les tendons et ligaments, apprendre le placement de l'effort",
+    sessions: [
+      {
+        label: "Séance A", type: "Footing Fondamental", color: "#2DD55B",
+        blocks: [
+          { name: "Warm-up", duration: "5 min", intensity: "Marche rapide", notes: "" },
+          { name: "Footing", duration: "20 min", intensity: "65-70% VMA", notes: "9.1–9.8 km/h | 6:07–6:35/km — allure conversation" },
+          { name: "Cool-down", duration: "5 min", intensity: "Marche", notes: "" },
+        ],
+        total: "~30 min",
+        tip: "Si tu ne peux pas parler en phrase complète, tu vas trop vite. Priorité absolue ce mois-ci."
+      },
+      {
+        label: "Séance B", type: "Footing + Foulées", color: "#2DD55B",
+        blocks: [
+          { name: "Warm-up", duration: "5 min", intensity: "Marche rapide", notes: "" },
+          { name: "Footing", duration: "22 min", intensity: "65-70% VMA", notes: "9.1–9.8 km/h | 6:07–6:35/km" },
+          { name: "Foulées", duration: "4×20s", intensity: "~90% VMA", notes: "12.6 km/h | 4:46/km — récup 1:40 marche entre chaque" },
+          { name: "Cool-down", duration: "5 min", intensity: "Marche", notes: "" },
+        ],
+        total: "~35 min",
+        tip: "Les foulées courtes stimulent les fibres rapides sans fatigue excessive. Ne pas sprinter."
+      }
+    ],
+    progression: "S3-4 : passer à 24-25 min de footing. S4 : passer à 5×20s foulées.",
+    expectedGain: "+0 à +3%",
+    testMonth: false,
+  },
+  {
+    number: 2, phase: "FONDATIONS", phaseN: 1,
+    goal: "Développement aérobie + première stimulation neuromusculaire",
+    sessions: [
+      {
+        label: "Séance A", type: "Footing Long + Foulées", color: "#2DD55B",
+        blocks: [
+          { name: "Warm-up", duration: "10 min", intensity: "65% VMA", notes: "9.1 km/h | 6:35/km" },
+          { name: "Footing", duration: "25-28 min", intensity: "70% VMA", notes: "9.8 km/h | 6:07/km" },
+          { name: "Foulées", duration: "6×20s", intensity: "95-100% VMA", notes: "13.3–14 km/h | 4:17–4:31/km — récup 1:40 jog lent" },
+          { name: "Cool-down", duration: "10 min", intensity: "65% VMA", notes: "" },
+        ],
+        total: "~50 min",
+        tip: "Objectif : augmenter de 1-2 foulées par séance A au fil du mois."
+      },
+      {
+        label: "Séance B", type: "Footing Continu", color: "#2DD55B",
+        blocks: [
+          { name: "Warm-up", duration: "10 min", intensity: "65% VMA", notes: "" },
+          { name: "Footing", duration: "28-32 min", intensity: "70-72% VMA", notes: "9.8–10.1 km/h | 5:57–6:07/km" },
+          { name: "Cool-down", duration: "10 min", intensity: "65% VMA", notes: "" },
+        ],
+        total: "~50 min",
+        tip: "Récupération active. Ne pas chercher à aller vite. Tu construis le moteur."
+      }
+    ],
+    progression: "S7-8 : si les 20s sont faciles, passer à 30s de foulées.",
+    expectedGain: "+1 à +6% cumulé",
+    testMonth: true,
+    testNote: "🎯 TEST DEMI-COOPER — Fin du mois 2",
+  },
+  {
+    number: 3, phase: "SEUIL", phaseN: 2,
+    goal: "Introduire le travail de seuil — facteur prédictif #1 des performances 5–21km",
+    sessions: [
+      {
+        label: "Séance A", type: "Intervalles Seuil", color: "#FF8A00",
+        blocks: [
+          { name: "Warm-up", duration: "12 min", intensity: "65% → 75% VMA", notes: "Progressif" },
+          { name: "Intervalles", duration: "3×4 min", intensity: "83-85% VMA", notes: "11.6–11.9 km/h | 5:03–5:10/km" },
+          { name: "Récup inter", duration: "3 min", intensity: "65% VMA", notes: "Jog lent entre chaque rep" },
+          { name: "Cool-down", duration: "12 min", intensity: "65% VMA", notes: "" },
+        ],
+        total: "~55 min",
+        tip: "Au seuil : tu dois pouvoir prononcer quelques mots mais pas tenir une conversation. C'est le bon niveau."
+      },
+      {
+        label: "Séance B", type: "Footing Aérobie", color: "#2DD55B",
+        blocks: [
+          { name: "Warm-up", duration: "10 min", intensity: "65% VMA", notes: "" },
+          { name: "Footing", duration: "30-35 min", intensity: "70-75% VMA", notes: "9.8–10.5 km/h | 5:43–6:07/km" },
+          { name: "Cool-down", duration: "10 min", intensity: "65% VMA", notes: "" },
+        ],
+        total: "~55 min",
+        tip: "Récupération active entre les séances de seuil. Essentielle pour l'adaptation."
+      }
+    ],
+    progression: "S9 : 3×4min → S11 : 3×5min → S13 : 4×4min",
+    expectedGain: "+3 à +9% cumulé",
+    testMonth: false,
+  },
+  {
+    number: 4, phase: "SEUIL", phaseN: 2,
+    goal: "Seuil avancé + première introduction au protocole Billat",
+    sessions: [
+      {
+        label: "Séance A", type: "Seuil Avancé", color: "#FF8A00",
+        blocks: [
+          { name: "Warm-up", duration: "12 min", intensity: "65% → 75% VMA", notes: "Progressif" },
+          { name: "Intervalles", duration: "4×5 min", intensity: "85-87% VMA", notes: "11.9–12.2 km/h | 4:55–5:03/km" },
+          { name: "Récup inter", duration: "2.5 min", intensity: "65% VMA", notes: "Plus court qu'au mois 3 = progression" },
+          { name: "Cool-down", duration: "12 min", intensity: "65% VMA", notes: "" },
+        ],
+        total: "~60 min",
+        tip: "La réduction du temps de récup = progression de la densité d'entraînement. Ne pas forcer si trop difficile."
+      },
+      {
+        label: "Séance B", type: "Billat 30/30 Light", color: "#FF4A00",
+        blocks: [
+          { name: "Warm-up", duration: "15 min", intensity: "65% → 80% VMA", notes: "Dernière min à 80%" },
+          { name: "Billat 30/30", duration: "8×(30s+30s)", intensity: "100% / 60% VMA", notes: "Rapide: 14 km/h | 4:17/km — Récup: 8.4 km/h | 7:09/km" },
+          { name: "Cool-down", duration: "10 min", intensity: "65% VMA", notes: "" },
+        ],
+        total: "~45 min",
+        tip: "Protocole Billat (1999) : 3× plus de temps passé à VO2max que lors d'un effort continu."
+      }
+    ],
+    progression: "Passer de 8 à 10 répétitions de 30/30 sur le mois.",
+    expectedGain: "+6 à +12% cumulé",
+    testMonth: true,
+    testNote: "🎯 TEST DEMI-COOPER — Fin du mois 4",
+  },
+  {
+    number: 5, phase: "VMA", phaseN: 3,
+    goal: "Maximiser le temps passé à VO2max — protocole Billat complet",
+    sessions: [
+      {
+        label: "Séance A", type: "Billat 30/30 Complet", color: "#FF4A00",
+        blocks: [
+          { name: "Warm-up", duration: "15 min", intensity: "65% → 80% VMA", notes: "Dont 2 min à 80%" },
+          { name: "Billat 30/30", duration: "12-16×(30s+30s)", intensity: "100% / 55% VMA", notes: "Rapide: 14 km/h | 4:17/km — Récup: 7.7 km/h | 7:48/km" },
+          { name: "Cool-down", duration: "12 min", intensity: "65% VMA", notes: "" },
+        ],
+        total: "~50 min",
+        tip: "Débuter à 12 reps, viser 16 fin du mois. Arrêter dès que tu ne tiens plus le 100%."
+      },
+      {
+        label: "Séance B", type: "Tempo Continu", color: "#FF8A00",
+        blocks: [
+          { name: "Warm-up", duration: "12 min", intensity: "65% → 75% VMA", notes: "" },
+          { name: "Tempo", duration: "20-22 min", intensity: "83-85% VMA", notes: "11.6–11.9 km/h | 5:03–5:10/km — continu" },
+          { name: "Cool-down", duration: "12 min", intensity: "65% VMA", notes: "" },
+        ],
+        total: "~48 min",
+        tip: "Le tempo continu développe la tolérance au seuil mieux que les intervalles courts à long terme."
+      }
+    ],
+    progression: "Augmenter le tempo de 20 à 22 min progressivement. Passer à 87% VMA si confortable.",
+    expectedGain: "+10 à +17% cumulé",
+    testMonth: false,
+  },
+  {
+    number: 6, phase: "VMA", phaseN: 3,
+    goal: "Intervalles longs VMA + affûtage — test final",
+    sessions: [
+      {
+        label: "Séance A", type: "Intervalles Longs VMA", color: "#FF4A00",
+        blocks: [
+          { name: "Warm-up", duration: "15 min", intensity: "65% → 85% VMA", notes: "Dernière min à 85%" },
+          { name: "Intervalles", duration: "4×2 min", intensity: "100-105% VMA", notes: "14–14.7 km/h | 4:05–4:17/km" },
+          { name: "Récup inter", duration: "2 min", intensity: "65% VMA", notes: "Jog de récup" },
+          { name: "Cool-down", duration: "12 min", intensity: "65% VMA", notes: "" },
+        ],
+        total: "~50 min",
+        tip: "Les intervalles ≥2min sont les plus efficaces pour VO2max sur le long terme (méta-analyse 2019). Si trop difficile → retour au 30/30."
+      },
+      {
+        label: "Séance B", type: "Tempo Long", color: "#FF8A00",
+        blocks: [
+          { name: "Warm-up", duration: "12 min", intensity: "65% → 75% VMA", notes: "" },
+          { name: "Tempo", duration: "25-28 min", intensity: "85-88% VMA", notes: "11.9–12.3 km/h | 4:53–5:03/km" },
+          { name: "Cool-down", duration: "12 min", intensity: "65% VMA", notes: "" },
+        ],
+        total: "~55 min",
+        tip: "S22 : remplacer par une séance easy seulement (20 min à 65% VMA) avant le test final."
+      }
+    ],
+    progression: "S22 : séance easy légère. S23-24 : TEST FINAL demi-Cooper.",
+    expectedGain: "+11 à +21% cumulé",
+    testMonth: true,
+    testNote: "🎯 TEST DEMI-COOPER FINAL — Semaine 23-24",
+  },
+];
 
-function loadScores() { try { const s = localStorage.getItem("qcm_sog_v1"); if (s) scores = JSON.parse(s); } catch(e) {} }
-function saveScores() { localStorage.setItem("qcm_sog_v1", JSON.stringify(scores)); }
+const scienceItems = [
+  { icon: "⚡", title: "HIIT & Intervalles", key: "Les intervalles ≥2min sont supérieurs pour le VO2max à long terme (SMD=0.41–1.81)", detail: "Méta-analyse PubMed 2019 (53 études). Les courts (<30s) restent efficaces à court terme (SMD=0.79). Programme = progression des courts (30/30) vers longs (2 min+)." },
+  { icon: "🔬", title: "Protocole Billat", key: "30/30 = 3× plus de temps à VO2max qu'un effort continu", detail: "Billat et al., European J. Applied Physiology (1999). Alternance 30s à vVO2max / 30s à 50% vVO2max. Idéal débutant : moins traumatisant, améliore aussi le seuil lactique." },
+  { icon: "📊", title: "Distribution d'intensité", key: "Modèle polarisé (80% facile / 20% dur) > entraînement au seuil seul", detail: "Stöggl & Sperlich, Frontiers in Physiology (2014). Pour débutants/récréatifs : le modèle pyramidal (un peu de Z2) est également acceptable (méta-analyse 2024, Medline+SPORTDiscus)." },
+  { icon: "📅", title: "Fréquence optimale", key: "2 sessions/semaine = optimal — aucun gain supplémentaire à 3×", detail: "Étude PubMed 2025 (26 participants). Effets les plus larges (d>0.5) sur VO2max et TTE à 2-3 sessions/sem. Ta fréquence (1.75/sem) est dans la fenêtre efficace." },
+  { icon: "💪", title: "Musculation & Course", key: "Ta base musculaire est un avantage direct — améliore l'économie de course", detail: "Méta-analyse 2024 : force lourde + méthodes combinées améliorent l'économie de course de ES=-0.27 à -0.43. L'effet d'interférence est minimal avec ≥24h entre jambes lourdes et course." },
+  { icon: "📈", title: "Gains Débutant", key: "15–25% de gain VO2max en 6 mois est réaliste pour un débutant entraîné", detail: "Phénomène des 'novice gains' + absence d'adaptation préalable en course = forte réponse initiale. Base musculaire solide → adaptation cardio très rapide dans les 6 premiers mois." },
+];
 
-function getPct(id) { const s = scores[id]; if (!s || s.total === 0) return null; return Math.round((s.correct / s.total) * 100); }
+const phaseColors = { 1: "#2DD55B", 2: "#FF8A00", 3: "#FF4A00" };
+const phaseLabels = { 1: "PHASE 1 — FONDATIONS", 2: "PHASE 2 — SEUIL", 3: "PHASE 3 — VMA" };
 
-function getTotalStats() {
-  let total = 0, correct = 0, done = 0;
-  THEMES.forEach(t => { const s = scores[t.id]; if (s && s.total > 0) { total += s.total; correct += s.correct; done++; } });
-  return { total, correct, done };
-}
+export default function RunningProgram() {
+  const [activeTab, setActiveTab] = useState("programme");
+  const [selectedMonth, setSelectedMonth] = useState(1);
+  const current = months[selectedMonth - 1];
 
-function render() {
-  updateHeader();
-  const c = document.getElementById("content");
-  c.innerHTML = "";
-  if (currentTab === "home") renderHome(c);
-  else if (currentTab === "scores") renderScores(c);
-  else if (currentTab === "qcm") renderQCM(c);
-}
+  return (
+    <div style={{ background: "#0A0E1A", minHeight: "100vh", color: "#F0EDE6", fontFamily: "'DM Sans', sans-serif" }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=DM+Mono:wght@400;500&display=swap');
+        *{box-sizing:border-box;margin:0;padding:0;}
+        ::-webkit-scrollbar{width:3px;}
+        ::-webkit-scrollbar-thumb{background:#FF4A00;border-radius:2px;}
+        .tb{background:transparent;border:1px solid transparent;color:#8890A8;padding:7px 14px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer;border-radius:6px;transition:all .2s;white-space:nowrap;letter-spacing:.05em;text-transform:uppercase;}
+        .tb:hover{color:#F0EDE6;border-color:#1E2535;}
+        .tb.act{color:#FF4A00;border-color:#FF4A00;background:rgba(255,74,0,.08);}
+        .mb{background:#141824;border:1px solid #1E2535;color:#8890A8;width:34px;height:34px;font-family:'DM Mono',monospace;font-size:12px;cursor:pointer;border-radius:6px;transition:all .2s;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+        .mb:hover{border-color:#FF4A00;color:#F0EDE6;}
+        .mb.act{background:rgba(255,74,0,.12);border-color:#FF4A00;color:#FF4A00;}
+        .mb.tst{border-style:dashed;}
+        .card{background:#141824;border:1px solid #1E2535;border-radius:10px;}
+        @keyframes fi{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+        .fi{animation:fi .25s ease;}
+      `}</style>
 
-function updateHeader() {
-  const el = document.getElementById("headerStats");
-  const { total, correct } = getTotalStats();
-  if (!total) { el.innerHTML = ""; return; }
-  const pct = Math.round((correct / total) * 100);
-  const cls = pct >= 80 ? "good" : pct < 50 ? "bad" : "";
-  el.innerHTML = `<div class="stat-pill ${cls}">${pct}% réussite</div><div class="stat-pill">${correct}/${total} bonnes rép.</div>`;
-}
-
-function renderHome(c) {
-  const { total, correct, done } = getTotalStats();
-  if (total > 0) {
-    const pct = Math.round((correct / total) * 100);
-    const cls = pct >= 80 ? "green" : "gold";
-    c.innerHTML += `<div class="global-stats">
-      <div class="gstat"><div class="gstat-val ${cls}">${pct}%</div><div class="gstat-label">Réussite</div></div>
-      <div class="gstat"><div class="gstat-val">${correct}</div><div class="gstat-label">Bonnes rép.</div></div>
-      <div class="gstat"><div class="gstat-val">${total - correct}</div><div class="gstat-label">Erreurs</div></div>
-      <div class="gstat"><div class="gstat-val">${done}/4</div><div class="gstat-label">Thèmes</div></div>
-    </div>`;
-  }
-  let grid = '<div class="home-grid">';
-  THEMES.forEach(t => {
-    const pct = getPct(t.id);
-    const s = scores[t.id];
-    const scoreHtml = pct !== null
-      ? `<div class="theme-score" style="color:${t.color}">${pct}% · ${s.correct}/${s.total}</div><div class="score-bar"><div class="score-fill" style="width:${pct}%;background:${t.color}"></div></div>`
-      : `<div class="theme-score" style="color:var(--dim)">Non commencé</div><div class="score-bar"><div class="score-fill" style="width:0%"></div></div>`;
-    grid += `<div class="theme-card" style="--card-color:${t.color}" onclick="startTheme('${t.id}')">
-      <span class="theme-icon">${t.icon}</span>
-      <div class="theme-name">${t.name}</div>
-      <div class="theme-count">${t.questions.length} QUESTION${t.questions.length > 1 ? 'S' : ''}</div>
-      ${scoreHtml}
-    </div>`;
-  });
-  grid += '</div>';
-  c.innerHTML += grid;
-}
-
-function renderScores(c) {
-  const { total } = getTotalStats();
-  if (!total) { c.innerHTML = `<div class="empty-scores"><div class="empty-icon">🏆</div><p>Aucun score encore.<br>Lance un QCM !</p></div>`; return; }
-  let html = '<div class="scores-list">';
-  THEMES.forEach(t => {
-    const pct = getPct(t.id);
-    const s = scores[t.id];
-    const pctStr = pct !== null ? `${pct}%` : "—";
-    const sub = s && s.total > 0 ? `${s.correct}/${s.total} · ${s.attempts} tentative${s.attempts > 1 ? 's' : ''}` : "Non commencé";
-    html += `<div class="score-item">
-      <div class="score-icon">${t.icon}</div>
-      <div class="score-info">
-        <div class="score-theme">${t.name}</div>
-        <div class="score-sub">${sub}</div>
-        <div class="score-bar" style="margin-top:6px"><div class="score-fill" style="width:${pct ?? 0}%;background:${t.color}"></div></div>
+      {/* HEADER */}
+      <div style={{ borderBottom: "1px solid #1E2535", padding: "18px 18px 14px", position: "sticky", top: 0, zIndex: 100, background: "rgba(10,14,26,.97)", backdropFilter: "blur(10px)" }}>
+        <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 12 }}>
+          <span style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: 26, letterSpacing: ".06em", color: "#FF4A00" }}>PROGRAMME VMA</span>
+          <span style={{ fontFamily: "'DM Mono',monospace", fontSize: 11, color: "#8890A8", letterSpacing: ".08em" }}>6 MOIS · VMA: 14 km/h</span>
+        </div>
+        <div style={{ display: "flex", gap: 5, overflowX: "auto", paddingBottom: 1 }}>
+          {[["programme","Programme"],["zones","Zones"],["science","Science"],["logbook","Logbook"]].map(([id, label]) => (
+            <button key={id} className={`tb${activeTab === id ? " act" : ""}`} onClick={() => setActiveTab(id)}>{label}</button>
+          ))}
+        </div>
       </div>
-      <div class="score-pct ${pct === null ? 'none' : ''}" style="${pct !== null ? `color:${t.color}` : ''}">${pctStr}</div>
-    </div>`;
-  });
-  html += '</div><button class="reset-btn" onclick="resetScores()">EFFACER LES SCORES</button>';
-  c.innerHTML = html;
-}
 
-function startTheme(id) {
-  currentTheme = THEMES.find(t => t.id === id);
-  currentQ = 0; sessionCorrect = 0; answered = false;
-  currentTheme._shuffled = [...currentTheme.questions].sort(() => Math.random() - 0.5);
-  currentTab = "qcm";
-  document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
-  render();
-}
+      <div style={{ padding: "18px 18px 48px" }}>
 
-function renderQCM(c) {
-  const questions = currentTheme._shuffled;
-  if (currentQ >= questions.length) { renderResult(c); return; }
-  const q = questions[currentQ];
-  const progress = (currentQ / questions.length) * 100;
-  const letters = ["A", "B", "C", "D"];
-  const imgHtml = q.img ? `<img src="${q.img}" class="question-img" alt="Grade"/>` : "";
-  let html = `
-    <div class="qcm-header">
-      <button class="back-btn" onclick="goHome()">← RETOUR</button>
-      <div class="qcm-title">${currentTheme.icon} ${currentTheme.name}</div>
+        {/* ─── PROGRAMME ─── */}
+        {activeTab === "programme" && (
+          <div className="fi">
+            {/* Month selector */}
+            <div style={{ display: "flex", gap: 5, flexWrap: "wrap", alignItems: "center", marginBottom: 18 }}>
+              {months.map(m => (
+                <button key={m.number} className={`mb${selectedMonth === m.number ? " act" : ""}${m.testMonth ? " tst" : ""}`} onClick={() => setSelectedMonth(m.number)} title={m.testMonth ? "Mois avec test" : ""}>{m.number}</button>
+              ))}
+              <span style={{ fontFamily: "'DM Mono',monospace", fontSize: 10, color: "#8890A8", marginLeft: 4 }}>╌ = test</span>
+            </div>
+
+            {/* Phase + month title */}
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+              <span style={{ background: phaseColors[current.phaseN], color: "#0A0E1A", fontSize: 9, fontWeight: 700, letterSpacing: ".1em", padding: "3px 7px", borderRadius: 4, fontFamily: "'DM Mono',monospace" }}>
+                {phaseLabels[current.phaseN]}
+              </span>
+              <span style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: 22, letterSpacing: ".04em" }}>MOIS {current.number}</span>
+            </div>
+            <p style={{ color: "#8890A8", fontSize: 13, marginBottom: 16, lineHeight: 1.55 }}>{current.goal}</p>
+
+            {/* Test alert */}
+            {current.testMonth && (
+              <div style={{ background: "rgba(255,184,0,.08)", border: "1px dashed #FFB800", borderRadius: 8, padding: "11px 14px", marginBottom: 16, fontSize: 12, color: "#FFB800", fontFamily: "'DM Mono',monospace" }}>
+                {current.testNote}
+              </div>
+            )}
+
+            {/* Sessions */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+              {current.sessions.map((s, si) => {
+                const rgb = s.color === "#2DD55B" ? "45,213,91" : s.color === "#FF8A00" ? "255,138,0" : "255,74,0";
+                return (
+                  <div key={si} className="card" style={{ overflow: "hidden" }}>
+                    {/* Session header */}
+                    <div style={{ padding: "11px 14px", borderBottom: "1px solid #1E2535", display: "flex", alignItems: "center", justifyContent: "space-between", background: `linear-gradient(90deg,rgba(${rgb},.09) 0%,transparent 100%)` }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                        <div style={{ width: 3, height: 30, background: s.color, borderRadius: 2 }} />
+                        <div>
+                          <div style={{ fontFamily: "'DM Mono',monospace", fontSize: 10, color: s.color, letterSpacing: ".08em", marginBottom: 1 }}>{s.label}</div>
+                          <div style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: 17, letterSpacing: ".04em" }}>{s.type}</div>
+                        </div>
+                      </div>
+                      <span style={{ fontFamily: "'DM Mono',monospace", fontSize: 11, color: "#8890A8" }}>{s.total}</span>
+                    </div>
+                    {/* Blocks */}
+                    <div style={{ padding: "10px 14px" }}>
+                      {s.blocks.map((b, bi) => (
+                        <div key={bi} style={{ padding: "8px 0", borderBottom: bi < s.blocks.length - 1 ? "1px solid #1E2535" : "none" }}>
+                          <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: b.notes ? 3 : 0 }}>
+                            <span style={{ fontFamily: "'DM Mono',monospace", fontSize: 10, color: "#8890A8", minWidth: 70, flexShrink: 0 }}>{b.name}</span>
+                            <span style={{ fontFamily: "'DM Mono',monospace", fontSize: 12, color: "#F0EDE6", fontWeight: 500, minWidth: 55, flexShrink: 0 }}>{b.duration}</span>
+                            <span style={{ fontSize: 13, color: "#F0EDE6" }}>{b.intensity}</span>
+                          </div>
+                          {b.notes && <div style={{ fontFamily: "'DM Mono',monospace", fontSize: 11, color: "#8890A8", paddingLeft: 78 }}>{b.notes}</div>}
+                        </div>
+                      ))}
+                    </div>
+                    {/* Tip */}
+                    <div style={{ padding: "9px 14px", background: "#0A0E1A", borderTop: "1px solid #1E2535", fontSize: 12, color: "#8890A8", lineHeight: 1.5 }}>💡 {s.tip}</div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Progression */}
+            <div className="card" style={{ padding: "13px 14px", marginTop: 14 }}>
+              <div style={{ fontFamily: "'DM Mono',monospace", fontSize: 10, color: "#8890A8", letterSpacing: ".08em", textTransform: "uppercase", marginBottom: 6 }}>Progression du mois</div>
+              <p style={{ fontSize: 13, color: "#F0EDE6", lineHeight: 1.6 }}>{current.progression}</p>
+            </div>
+
+            {/* Gain + sessions */}
+            <div style={{ display: "flex", gap: 10, marginTop: 12 }}>
+              <div style={{ flex: 1, background: "rgba(45,213,91,.06)", border: "1px solid rgba(45,213,91,.2)", borderRadius: 8, padding: "10px 13px" }}>
+                <div style={{ fontFamily: "'DM Mono',monospace", fontSize: 9, color: "#8890A8", textTransform: "uppercase", letterSpacing: ".1em", marginBottom: 3 }}>Gain VMA estimé</div>
+                <div style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: 22, color: "#2DD55B", letterSpacing: ".04em" }}>{current.expectedGain}</div>
+              </div>
+              <div className="card" style={{ flex: 1, padding: "10px 13px" }}>
+                <div style={{ fontFamily: "'DM Mono',monospace", fontSize: 9, color: "#8890A8", textTransform: "uppercase", letterSpacing: ".1em", marginBottom: 3 }}>Séances / mois</div>
+                <div style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: 22, letterSpacing: ".04em" }}>~7</div>
+              </div>
+            </div>
+
+            {/* Concurrent training warning */}
+            <div style={{ marginTop: 12, background: "rgba(255,74,0,.05)", border: "1px solid rgba(255,74,0,.2)", borderRadius: 10, padding: "12px 14px" }}>
+              <div style={{ fontFamily: "'DM Mono',monospace", fontSize: 10, color: "#FF4A00", letterSpacing: ".08em", textTransform: "uppercase", marginBottom: 6 }}>⚠ Coordination Musculation</div>
+              <p style={{ fontSize: 13, color: "#F0EDE6", lineHeight: 1.6 }}>Ne jamais courir J+1 après une séance jambes lourde. Minimum 24h de séparation. Ton rythme 1/4 jours offre une récupération très confortable.</p>
+            </div>
+          </div>
+        )}
+
+        {/* ─── ZONES ─── */}
+        {activeTab === "zones" && (
+          <div className="fi">
+            <div style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: 24, letterSpacing: ".04em", marginBottom: 4 }}>ZONES D'ENTRAÎNEMENT</div>
+            <p style={{ color: "#8890A8", fontSize: 13, marginBottom: 18 }}>
+              Basées sur VMA initiale: <strong style={{ color: "#FF4A00" }}>14 km/h</strong>. À recalibrer après chaque test.
+            </p>
+
+            <div className="card" style={{ overflow: "hidden", marginBottom: 20 }}>
+              {zones.map((z, i) => (
+                <div key={i} style={{ padding: "14px", borderBottom: i < zones.length - 1 ? "1px solid #1E2535" : "none", background: i % 2 === 0 ? "transparent" : "rgba(255,255,255,.01)" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+                    <div style={{ width: 8, height: 8, borderRadius: "50%", background: z.color, flexShrink: 0 }} />
+                    <span style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: 16, letterSpacing: ".04em", color: z.color }}>{z.name}</span>
+                    <span style={{ marginLeft: "auto", fontFamily: "'DM Mono',monospace", fontSize: 11, color: "#8890A8" }}>{z.pct}</span>
+                  </div>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, paddingLeft: 18 }}>
+                    {[["Vitesse", z.speed], ["Allure", z.pace]].map(([lbl, val]) => (
+                      <div key={lbl}>
+                        <div style={{ fontFamily: "'DM Mono',monospace", fontSize: 9, color: "#8890A8", textTransform: "uppercase", letterSpacing: ".1em", marginBottom: 2 }}>{lbl}</div>
+                        <div style={{ fontFamily: "'DM Mono',monospace", fontSize: 14, color: "#F0EDE6", fontWeight: 500 }}>{val}</div>
+                      </div>
+                    ))}
+                  </div>
+                  <div style={{ paddingLeft: 18, marginTop: 6, fontSize: 12, color: "#8890A8", fontStyle: "italic" }}>→ {z.feel}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Projection */}
+            <div style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: 18, letterSpacing: ".04em", marginBottom: 12 }}>PROJECTION PROGRESSIVE</div>
+            <div className="card" style={{ overflow: "hidden" }}>
+              {[
+                { label: "VMA Initiale", value: "14.0 km/h", pace: "4:17/km", color: "#8890A8", gain: "Référence" },
+                { label: "Fin Mois 2", value: "14.2–14.8", pace: "Estimé", color: "#2DD55B", gain: "+1 à +6%" },
+                { label: "Fin Mois 4", value: "14.5–15.5", pace: "Estimé", color: "#FFB800", gain: "+3 à +11%" },
+                { label: "Fin Mois 6", value: "15.5–17.0", pace: "Estimé", color: "#FF4A00", gain: "+11 à +21%" },
+              ].map((r, i) => (
+                <div key={i} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "13px 14px", borderBottom: i < 3 ? "1px solid #1E2535" : "none" }}>
+                  <div>
+                    <div style={{ fontSize: 14, color: "#F0EDE6", marginBottom: 2 }}>{r.label}</div>
+                    <div style={{ fontFamily: "'DM Mono',monospace", fontSize: 10, color: "#8890A8" }}>{r.pace}</div>
+                  </div>
+                  <div style={{ textAlign: "right" }}>
+                    <div style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: 20, color: r.color, letterSpacing: ".04em" }}>{r.value}</div>
+                    <div style={{ fontFamily: "'DM Mono',monospace", fontSize: 10, color: r.color, opacity: .8 }}>{r.gain}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <p style={{ marginTop: 10, fontSize: 12, color: "#8890A8", lineHeight: 1.6 }}>
+              ⚠️ Estimations indicatives. Chaque test demi-Cooper permet d'ajuster les zones et le programme en conséquence.
+            </p>
+          </div>
+        )}
+
+        {/* ─── SCIENCE ─── */}
+        {activeTab === "science" && (
+          <div className="fi">
+            <div style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: 24, letterSpacing: ".04em", marginBottom: 4 }}>BASES SCIENTIFIQUES</div>
+            <p style={{ color: "#8890A8", fontSize: 13, marginBottom: 18 }}>Sources PubMed, méta-analyses, RCT (2014–2025).</p>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 24 }}>
+              {scienceItems.map((item, i) => (
+                <div key={i} className="card" style={{ padding: "14px" }}>
+                  <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
+                    <span style={{ fontSize: 20, flexShrink: 0, marginTop: 1 }}>{item.icon}</span>
+                    <div>
+                      <div style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: 15, letterSpacing: ".04em", color: "#FF4A00", marginBottom: 5 }}>{item.title}</div>
+                      <p style={{ fontSize: 13, color: "#F0EDE6", lineHeight: 1.5, marginBottom: 8, fontWeight: 500 }}>{item.key}</p>
+                      <p style={{ fontSize: 12, color: "#8890A8", lineHeight: 1.6 }}>{item.detail}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Principles */}
+            <div style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: 18, letterSpacing: ".04em", marginBottom: 14 }}>PRINCIPES DIRECTEURS</div>
+            {[
+              { n: "01", title: "Progression conservatrice au début", desc: "Tendons et ligaments = 3-6 mois d'adaptation. Beaucoup plus lent que le système cardiovasculaire. Mois 1-2 : protection des structures = priorité absolue." },
+              { n: "02", title: "Seuil avant VMA", desc: "Le seuil lactique est le prédicteur #1 des performances 5–21km. L'améliorer en mois 3-4 prépare le terrain et réduit le risque de blessure." },
+              { n: "03", title: "Distribution 80/20 globale", desc: "~80% des séances à basse intensité (Z1-Z2), ~20% haute intensité (Z3-Z4). Modèle polarisé validé supérieur à l'entraînement au seuil seul." },
+              { n: "04", title: "Billat → Longs intervalles", desc: "Progression du 30/30 (moins traumatisant, idéal débutant) vers les intervalles 2-3min (plus efficaces pour le VO2max à long terme selon méta-analyse 2019)." },
+              { n: "05", title: "Tests intermédiaires obligatoires", desc: "Demi-Cooper fin M2 et M4. Permet d'ajuster les zones avec précision ET de mesurer les progrès objectivement. La compliance est meilleure avec des résultats visibles." },
+            ].map((p, i) => (
+              <div key={i} style={{ display: "flex", gap: 14, paddingBottom: 14, marginBottom: 14, borderBottom: i < 4 ? "1px solid #1E2535" : "none" }}>
+                <span style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: 26, color: "#FF4A00", opacity: .35, lineHeight: 1, flexShrink: 0, minWidth: 32 }}>{p.n}</span>
+                <div>
+                  <div style={{ fontSize: 14, color: "#F0EDE6", fontWeight: 600, marginBottom: 4 }}>{p.title}</div>
+                  <p style={{ fontSize: 12, color: "#8890A8", lineHeight: 1.6 }}>{p.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* ─── LOGBOOK ─── */}
+        {activeTab === "logbook" && (
+          <div className="fi">
+            <div style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: 24, letterSpacing: ".04em", marginBottom: 4 }}>LOGBOOK MENSUEL</div>
+            <p style={{ color: "#8890A8", fontSize: 13, lineHeight: 1.6, marginBottom: 20 }}>
+              Copie-colle ce template dans cette conversation à la fin de chaque mois. Le programme sera ajusté en temps réel.
+            </p>
+
+            {/* Template */}
+            <div className="card" style={{ overflow: "hidden", marginBottom: 18 }}>
+              <div style={{ padding: "10px 14px", background: "#0A0E1A", borderBottom: "1px solid #1E2535", fontFamily: "'Bebas Neue',sans-serif", fontSize: 14, letterSpacing: ".04em", color: "#FF4A00" }}>
+                TEMPLATE — COPIER CE BLOC CHAQUE MOIS
+              </div>
+              <div style={{ padding: 14, fontFamily: "'DM Mono',monospace", fontSize: 12, color: "#8890A8", lineHeight: 2, background: "#0d1120" }}>
+                {`=== COMPTE-RENDU MOIS [X] ===
+
+Séances réalisées:  __ / 7
+Distance totale:    __ km
+VMA testée (si M2/M4/M6): __ km/h
+
+SÉANCES:
+[JJ/MM] A/B — __min — RPE __/10 — Notes: 
+[JJ/MM] A/B — __min — RPE __/10 — Notes: 
+[JJ/MM] A/B — __min — RPE __/10 — Notes: 
+[JJ/MM] A/B — __min — RPE __/10 — Notes: 
+[JJ/MM] A/B — __min — RPE __/10 — Notes: 
+[JJ/MM] A/B — __min — RPE __/10 — Notes: 
+[JJ/MM] A/B — __min — RPE __/10 — Notes: 
+
+✅ Points positifs:
+→ 
+
+⚠️ Difficultés / douleurs:
+→ 
+
+❓ Questions:
+→ `}
+              </div>
+            </div>
+
+            {/* RPE scale */}
+            <div style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: 18, letterSpacing: ".04em", marginBottom: 12 }}>ÉCHELLE RPE (Borg 1-10)</div>
+            <div className="card" style={{ overflow: "hidden", marginBottom: 18 }}>
+              {[
+                ["1-3", "Très facile", "Footing lent Z1", "#2DD55B"],
+                ["4-5", "Modéré", "Footing aérobie Z2", "#FFB800"],
+                ["6-7", "Difficile", "Seuil Z3", "#FF8A00"],
+                ["8-9", "Très difficile", "VMA Z4", "#FF4A00"],
+                ["10", "Maximum", "Sprint / effort max", "#FF0000"],
+              ].map(([lvl, lbl, desc, col], i) => (
+                <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 14px", borderBottom: i < 4 ? "1px solid #1E2535" : "none" }}>
+                  <span style={{ fontFamily: "'DM Mono',monospace", fontSize: 14, color: col, fontWeight: 600, minWidth: 26 }}>{lvl}</span>
+                  <div>
+                    <div style={{ fontSize: 13, color: "#F0EDE6" }}>{lbl}</div>
+                    <div style={{ fontFamily: "'DM Mono',monospace", fontSize: 10, color: "#8890A8" }}>{desc}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Signals */}
+            <div style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: 18, letterSpacing: ".04em", marginBottom: 12 }}>SIGNAUX À SURVEILLER</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
+              {[
+                ["🔴", "Douleur tibiale ou plantaire persistante", "Stop + repos 5-7j + médecin si >10j"],
+                ["🔴", "Douleur au genou pendant/après la course", "Stop + repos + kiné si >5j"],
+                ["🟡", "Fatigue excessive entre les séances", "Réduire intensité, vérifier sommeil et nutrition"],
+                ["🟡", "FC repos +5-10bpm plusieurs jours de suite", "Surcharge → séance easy uniquement"],
+                ["🟢", "RPE qui diminue à même vitesse", "Signe de progression → augmenter la charge"],
+              ].map(([ico, sig, act], i) => (
+                <div key={i} className="card" style={{ padding: "11px 13px", display: "flex", gap: 10 }}>
+                  <span style={{ fontSize: 15, flexShrink: 0 }}>{ico}</span>
+                  <div>
+                    <div style={{ fontSize: 13, color: "#F0EDE6", marginBottom: 3 }}>{sig}</div>
+                    <div style={{ fontFamily: "'DM Mono',monospace", fontSize: 10, color: "#8890A8" }}>→ {act}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+      </div>
     </div>
-    <div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div>
-    <div class="question-num">QUESTION ${currentQ + 1} / ${questions.length}</div>
-    <div class="question-text">${q.q}</div>
-    ${imgHtml}
-    <div class="options" id="options">`;
-  q.options.forEach((opt, i) => {
-    html += `<button class="option-btn" onclick="answer(${i})" id="opt${i}"><span class="option-letter">${letters[i]}</span>${opt}</button>`;
-  });
-  html += `</div>
-    <div class="explanation" id="expl"><strong>💡 Explication :</strong> ${q.expl}</div>
-    <button class="next-btn" id="nextBtn" onclick="nextQ()">${currentQ + 1 < questions.length ? 'QUESTION SUIVANTE →' : 'VOIR LES RÉSULTATS →'}</button>`;
-  c.innerHTML = html;
+  );
 }
-
-function answer(idx) {
-  if (answered) return;
-  answered = true;
-  const q = currentTheme._shuffled[currentQ];
-  q.options.forEach((_, i) => {
-    const btn = document.getElementById(`opt${i}`);
-    btn.disabled = true;
-    if (i === q.answer) btn.classList.add(idx === q.answer ? "correct" : "reveal-correct");
-    if (i === idx && idx !== q.answer) btn.classList.add("wrong");
-  });
-  if (idx === q.answer) sessionCorrect++;
-  document.getElementById("expl").classList.add("visible");
-  document.getElementById("nextBtn").classList.add("visible");
-}
-
-function nextQ() { currentQ++; answered = false; render(); }
-
-function renderResult(c) {
-  const total = currentTheme._shuffled.length;
-  const pct = Math.round((sessionCorrect / total) * 100);
-  const cls = pct >= 80 ? "excellent" : pct >= 50 ? "good-score" : "bad-score";
-  const msg = pct >= 80 ? "EXCELLENT !" : pct >= 50 ? "BON TRAVAIL" : "À REVOIR";
-  if (!scores[currentTheme.id]) scores[currentTheme.id] = { correct: 0, total: 0, attempts: 0 };
-  scores[currentTheme.id].correct += sessionCorrect;
-  scores[currentTheme.id].total += total;
-  scores[currentTheme.id].attempts++;
-  saveScores();
-  c.innerHTML = `<div class="result-wrap">
-    <div class="result-score ${cls}">${pct}%</div>
-    <div class="result-label">${msg}</div>
-    <div class="result-details">
-      <div class="detail-row"><span class="detail-label">Bonnes réponses</span><span class="detail-val green">${sessionCorrect} / ${total}</span></div>
-      <div class="detail-row"><span class="detail-label">Erreurs</span><span class="detail-val red">${total - sessionCorrect}</span></div>
-      <div class="detail-row"><span class="detail-label">Thème</span><span class="detail-val">${currentTheme.icon} ${currentTheme.name}</span></div>
-    </div>
-    <div class="result-btns">
-      <button class="btn-retry" onclick="startTheme('${currentTheme.id}')">🔄 RECOMMENCER</button>
-      <button class="btn-home" onclick="goHome()">← ACCUEIL</button>
-    </div>
-  </div>`;
-}
-
-function goHome() {
-  currentTheme = null; currentTab = "home";
-  document.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", t.dataset.tab === "home"));
-  render();
-}
-
-function resetScores() {
-  if (!confirm("Effacer tous les scores ?")) return;
-  scores = {}; saveScores(); render();
-}
-
-document.querySelectorAll(".tab").forEach(btn => {
-  btn.addEventListener("click", () => {
-    if (btn.dataset.tab === "qcm") return;
-    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
-    btn.classList.add("active");
-    currentTab = btn.dataset.tab;
-    currentTheme = null;
-    render();
-  });
-});
-
-loadScores();
-render();
-</script>
-
-</body>
-</html>
